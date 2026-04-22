@@ -10,9 +10,28 @@ from typing import Any, Literal, Optional
 from pydantic import BaseModel, Field, field_validator
 
 Category = Literal["F", "B", "I", "A", "E", "G", "H", "J"]
-Verdict = Literal["RESOLVED", "PARTIALLY_RESOLVED", "UNRESOLVED"]
+# Verdict keeps legacy labels for back-compat; new code emits CONFIRMED_AMBIGUOUS / RESOLVED_BY_CONTEXT / PARTIALLY_RESOLVED.
+Verdict = Literal[
+    "RESOLVED",
+    "PARTIALLY_RESOLVED",
+    "UNRESOLVED",
+    "CONFIRMED_AMBIGUOUS",
+    "RESOLVED_BY_CONTEXT",
+]
 RewriteStatus = Literal["OK", "INSUFFICIENT_GROUNDING", "SKIPPED"]
 JudgeDecision = Literal["TRUE_POSITIVE", "FALSE_POSITIVE", "WRONG_CATEGORY", "UNCERTAIN"]
+
+DocumentType = Literal[
+    "GCC",
+    "Additional Conditions",
+    "NIT",
+    "Technical Specifications",
+    "BOQ",
+    "Conditions of Contract",
+    "Addendum",
+    "Drawing",
+    "Other",
+]
 
 
 class Chunk(BaseModel):
@@ -23,6 +42,49 @@ class Chunk(BaseModel):
     clause_hint: Optional[str] = None
     char_start: int = 0
     char_end: int = 0
+    # Prompt-4 additions:
+    package_id: Optional[str] = None
+    document_type: Optional[str] = None
+
+
+class PackageDocument(BaseModel):
+    """One PDF in a tender package."""
+    doc_id: str
+    filename: str
+    document_type: DocumentType = "Other"
+    num_pages: int = 0
+    analyse: bool = True
+    page_range: Optional[tuple[int, int]] = None  # inclusive, 1-indexed
+
+
+class TenderPackage(BaseModel):
+    package_id: str
+    documents: list[PackageDocument] = Field(default_factory=list)
+    upload_timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+
+
+class KeywordMatch(BaseModel):
+    term: str
+    weight: float = 0.5
+    position: int = 0
+    rule_triggered: Optional[str] = None
+
+
+class DualScoredFlag(BaseModel):
+    """The Prompt-4 primary flag: keyword + LLM dual score with combined decision."""
+    id: str
+    chunk_id: str
+    category: Category
+    span_text: str
+    span_char_start: int
+    span_char_end: int
+    keyword_score: float = Field(ge=0.0, le=1.0, default=0.0)
+    llm_score: float = Field(ge=0.0, le=1.0, default=0.0)
+    combined_score: float = Field(ge=0.0, le=1.0, default=0.0)
+    keyword_matches: list[KeywordMatch] = Field(default_factory=list)
+    justification: str = ""
+    package_id: Optional[str] = None
+    status: Literal["CONFIRMED", "REVIEW_QUEUE"] = "CONFIRMED"
 
 
 class DetectionPass(BaseModel):
@@ -80,14 +142,16 @@ class Resolution(BaseModel):
     retrieved: list[RetrievedContext] = Field(default_factory=list)
     needs_re_adjudication: bool = False
     judge_stripped: list[str] = Field(default_factory=list)
+    stage: Literal["package_context", "legacy"] = "package_context"
 
 
 class Rewrite(BaseModel):
     flag_id: str
     status: RewriteStatus
     suggested_text: str = ""
-    grounding: list[str] = Field(default_factory=list)  # IS-code refs present in cited grounding
+    grounding: list[str] = Field(default_factory=list)  # IS/CPWD refs present in cited grounding
     explanation: str = ""
+    stage: Literal["standards_grounded", "legacy"] = "standards_grounded"
 
 
 class Entity(BaseModel):

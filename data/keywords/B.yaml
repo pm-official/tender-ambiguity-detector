@@ -1,0 +1,18 @@
+# Vague Qualifiers — evaluative adjectives with no quantifiable threshold.
+entries:
+  - {term: "adequate", weight: 0.9, forbid_context: "numeric"}
+  - {term: "reasonable", weight: 0.85, forbid_context: "numeric"}
+  - {term: "sufficient", weight: 0.85, forbid_context: "numeric"}
+  - {term: "good quality", weight: 0.85}
+  - {term: "satisfactory", weight: 0.8, forbid_context: "numeric"}
+  - {term: "appropriate", weight: 0.75, forbid_context: "numeric"}
+  - {term: "acceptable", weight: 0.75, forbid_context: "numeric"}
+  - {term: "requisite", weight: 0.7}
+  - {term: "due care", weight: 0.7}
+  - {term: "reasonable care", weight: 0.7}
+  - {term: "good workmanship", weight: 0.75}
+  - {term: "suitable care", weight: 0.7}
+  - {term: "proper manner", weight: 0.7}
+  - {term: "timely", weight: 0.65, forbid_context: "numeric"}
+  - {term: "prompt", weight: 0.6, forbid_context: "numeric"}
+  - {term: "in a workmanlike manner", weight: 0.75}

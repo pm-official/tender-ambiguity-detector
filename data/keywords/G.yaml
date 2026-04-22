@@ -1,0 +1,12 @@
+# Priority Conflicts — priority clauses + conflict-signalling phrasing.
+entries:
+  - {term: "in case of conflict", weight: 0.9}
+  - {term: "in case of discrepancy", weight: 0.9}
+  - {term: "in the event of conflict", weight: 0.9}
+  - {term: "shall prevail over", weight: 0.85}
+  - {term: "shall govern over", weight: 0.85}
+  - {term: "shall supersede", weight: 0.8}
+  - {term: "order of precedence", weight: 0.85}
+  - {term: "notwithstanding", weight: 0.6}
+  - {term: "inconsistency", weight: 0.75}
+  - {term: "ambiguity in documents", weight: 0.85}

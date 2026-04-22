@@ -1,7 +1,5 @@
-"""The 'About this method' standalone tab content."""
+"""About tab — renders the Prompt-4 four-stage methodology with a mermaid diagram."""
 from __future__ import annotations
-
-from pathlib import Path
 
 import streamlit as st
 
@@ -9,27 +7,36 @@ from src import config, explain
 
 from .info_icon import info_popover
 
-ROOT = Path(__file__).resolve().parent.parent.parent
+
+MERMAID_DIAGRAM = """
+flowchart TD
+  A[Tender Package Upload] --> B[Document Typing & Selection]
+  B --> C[Parse & Chunk<br/><small>selected docs → candidate flags; all docs indexed for retrieval</small>]
+  C --> D[Stage 1<br/>Dual-Scoring Detection<br/><small>keyword + LLM → combined → threshold</small>]
+  D --> E[Stage 2<br/>Package Context Resolution<br/><small>RAG over whole package → Confirmed / Resolved</small>]
+  E -->|Confirmed Ambiguous / Partial| F[Stage 3<br/>Standards-Grounded Rewrite<br/><small>RAG over IS + CPWD → grounded suggestion</small>]
+  E -->|Resolved by Context| G[Report shown; no rewrite needed]
+"""
 
 
 def render_method_panel():
     st.markdown("## About this method")
     st.caption(
-        "This page is the one-stop introduction to TAD. "
-        "Every number and verdict in the app has an (ℹ) icon that opens a popover like the ones below."
+        "TAD reads a tender package, detects 8 kinds of ambiguity, checks whether the rest of the package "
+        "resolves each flag, and suggests a standards-grounded rewrite for the ones it doesn't."
     )
 
-    st.markdown("### The problem")
-    st.write(
-        "Construction tenders routinely contain ambiguous clauses. Ambiguity drives disputes, cost overruns, "
-        "re-tenders and litigation. TAD reads tender PDFs, detects eight distinct categories of ambiguity, "
-        "tries to resolve each flag against IS-code and intra-tender context, and suggests "
-        "IS-code-grounded rewrites."
-    )
+    st.markdown("### The four stages")
+    try:
+        import streamlit_mermaid as stmd  # type: ignore
 
-    st.markdown("### The four pipeline stages")
+        stmd.st_mermaid(MERMAID_DIAGRAM, height="460px")
+    except Exception:
+        st.code(MERMAID_DIAGRAM, language="text")
+
+    st.markdown("### What each stage does")
     col = st.columns(4)
-    for i, k in enumerate(["parse", "detect_v1", "resolve", "rewrite"]):
+    for i, k in enumerate(["chunk", "detect", "resolve", "rewrite"]):
         with col[i]:
             e = explain.explain_or_stub(f"stages.{k}")
             st.markdown(f"**{e['title']}**")
@@ -37,9 +44,8 @@ def render_method_panel():
             info_popover(f"stages.{k}")
 
     st.markdown("### The eight ambiguity categories")
-    cats = config.ENABLED_CATEGORIES
     cols = st.columns(4)
-    for i, c in enumerate(cats):
+    for i, c in enumerate(config.ENABLED_CATEGORIES):
         with cols[i % 4]:
             with st.container(border=True):
                 e = explain.explain_or_stub(f"categories.{c}")
@@ -47,20 +53,22 @@ def render_method_panel():
                 st.caption(e["what"])
                 info_popover(f"categories.{c}")
 
-    st.markdown("### Why hybrid retrieval (vector + graph)")
-    st.write(
-        "Categories F, B, I, A, E, J are local — vector retrieval over the tender and IS-codes handles them. "
-        "Categories G (priority conflict) and H (numeric inconsistency) are inherently cross-document — vector "
-        "retrieval cannot see them. TAD routes G/H to a knowledge graph built from the tender and answers "
-        "them from typed nodes (documents, clauses, quantities, priority rules)."
-    )
+    st.markdown("### Three verdicts at Stage 2")
+    cols = st.columns(3)
+    for i, v in enumerate(["CONFIRMED_AMBIGUOUS", "RESOLVED_BY_CONTEXT", "PARTIALLY_RESOLVED"]):
+        with cols[i]:
+            with st.container(border=True):
+                e = explain.explain_or_stub(f"verdicts.{v}")
+                st.markdown(f"**{e['title']}**")
+                st.caption(e["what"])
+                info_popover(f"verdicts.{v}")
 
-    st.markdown("### The four accuracy guardrails")
+    st.markdown("### Accuracy guardrails")
     g = [
-        ("stages.merge_probe", "G1+G2 — 3-pass ensemble & negative probe"),
+        ("stages.detect", "Dual-scoring detector with optional negative-control probe (G2)"),
         ("stages.judge_citations", "G3 — LLM-as-judge citation verification"),
         ("stages.verify_grounding", "G4 — rewrite grounding verification"),
-        ("params.DETECTION_CONFIDENCE_THRESHOLD", "Per-category calibrated thresholds"),
+        ("params.DETECTION_THRESHOLD", "Per-category calibrated thresholds"),
     ]
     cols = st.columns(2)
     for i, (k, label) in enumerate(g):
@@ -70,9 +78,9 @@ def render_method_panel():
                 st.caption(explain.explain_or_stub(k)["what"])
                 info_popover(k)
 
-    st.markdown("### Metrics at a glance")
+    st.markdown("### Key metrics")
     cols = st.columns(3)
-    for i, m in enumerate(["metrics.precision", "metrics.recall", "metrics.false_resolution_rate"]):
+    for i, m in enumerate(["metrics.precision", "metrics.resolved_by_context_rate", "metrics.false_resolution_rate"]):
         with cols[i]:
             with st.container(border=True):
                 e = explain.explain_or_stub(m)
@@ -80,11 +88,18 @@ def render_method_panel():
                 st.caption(e["benchmark"])
                 info_popover(m)
 
-    st.markdown("### Known limitations")
+    st.markdown("### Known limitations (report honestly)")
     st.write(
-        "- Scanned PDFs without an OCR layer are not supported in this build.\n"
-        "- IS-code grounding quality depends on the IS-code PDFs supplied in `is_codes/`. If none are supplied, "
-        "resolutions fall back to tender-only retrieval.\n"
-        "- Graph extraction is LLM-driven; entity canonicalisation is surface-form-based and will miss some aliases.\n"
-        "- The LLM-as-Judge annotation protocol is a mitigation for full double-annotation, not a replacement. Report honestly.\n"
+        "- Scanned PDFs without an OCR layer are not supported.\n"
+        "- IS-code / CPWD grounding quality depends on the standards PDFs ingested via src.is_code_ingest.\n"
+        "- Entity canonicalisation in the graph is surface-form-based and misses some aliases.\n"
+        "- The LLM-as-Judge annotation protocol is a mitigation for full double-annotation, not a replacement."
+    )
+
+    st.markdown("### Design changes vs the initial build")
+    st.write(
+        "- **Package, not a single document.** Users upload the whole tender package; Stage 2 retrieves across the whole package.\n"
+        "- **Dual-scoring, not 3-pass ensemble.** Each chunk gets a keyword score + a single LLM score; combined above threshold → flagged. The legacy ensemble is preserved behind `USE_LEGACY_ENSEMBLE` for ablation.\n"
+        "- **Two-stage RAG.** Stage 2 retrieves from the tender package to check whether the flag is real; Stage 3 retrieves from IS + CPWD to ground a rewrite.\n"
+        "- **Intuitive category names.** Letter codes are internal IDs only; every UI surface shows display names."
     )

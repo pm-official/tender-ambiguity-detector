@@ -1,0 +1,29 @@
+You are deciding whether a flagged construction tender clause is genuinely ambiguous or whether the rest of the tender package resolves it.
+
+FLAG:
+- Category: {CATEGORY_DISPLAY_NAME}
+- Flagged chunk: """{CHUNK_TEXT}"""
+- Flagged span: "{SPAN_TEXT}"
+- Original justification: {JUSTIFICATION}
+
+CONTEXT RETRIEVED FROM THE WHOLE TENDER PACKAGE (each has an id):
+{RETRIEVED_CONTEXTS}
+
+TASK:
+Decide exactly one of:
+- CONFIRMED_AMBIGUOUS: the retrieved context does not resolve the ambiguity — a reasonable bidder, reading the flag plus the context, could still interpret the clause in more than one way.
+- RESOLVED_BY_CONTEXT: the retrieved context names, defines, or specifies the term well enough that a reasonable bidder now has one clear interpretation.
+- PARTIALLY_RESOLVED: the context narrows the interpretation but leaves a defensible second reading.
+
+RULES:
+- Cite only the context IDs shown above.
+- Do not fabricate clause numbers or sources.
+- If a context is off-topic, ignore it rather than stretching.
+- Write the reasoning so a practising engineer, not an ML researcher, can follow it.
+
+RESPOND IN VALID JSON ONLY:
+{
+  "verdict": "CONFIRMED_AMBIGUOUS | RESOLVED_BY_CONTEXT | PARTIALLY_RESOLVED",
+  "reasoning": "3-5 plain-English sentences",
+  "cited_context_ids": ["..."]
+}

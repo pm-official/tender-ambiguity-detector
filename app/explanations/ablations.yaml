@@ -1,3 +1,15 @@
+dual_scoring_vs_ensemble:
+  title: "Dual-scoring vs 3-pass ensemble"
+  what: "Compare the Prompt-4 default dual-scoring detector (keyword + LLM) against the Prompt-3 3-pass ensemble."
+  why: "Demonstrates that the simpler, cheaper dual-scoring path matches or beats the ensemble."
+  how: "Run pipeline with USE_LEGACY_ENSEMBLE=False vs True on the same gold slice."
+  expected: "Dual-scoring within ~1-2 F1 points of ensemble at roughly 1/6 the LLM cost."
+alpha_sweep:
+  title: "α sweep (keyword vs LLM weight)"
+  what: "Sweep KEYWORD_SCORE_WEIGHT_ALPHA from 0.0 (LLM only) to 1.0 (keyword only) in 0.1 steps; measure per-category F1."
+  why: "Shows the operational trade-off and validates the default α=0.3."
+  how: "src/experiments.py alpha_sweep target; plots F1 vs α per category."
+  expected: "F1 peaks between 0.2 and 0.4 for most categories; steep drop at α=1.0 (keyword-only fails on paraphrases)."
 ensemble_on_off:
   title: "Ensemble on/off"
   what: "Compare 3-pass ensemble vs single-pass detection."

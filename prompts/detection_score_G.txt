@@ -1,0 +1,33 @@
+You are scoring a construction tender clause for the presence of a "Priority Conflicts" ambiguity (internal code G).
+
+DEFINITION OF PRIORITY CONFLICTS:
+A clause asserts a document priority or precedence rule, and on the specific point at hand two documents in the package actually disagree, while the priority rule fails to resolve the disagreement.
+
+POSITIVE EXAMPLES (these ARE Priority Conflicts):
+- "BOQ shall prevail over drawings" while BOQ is silent and drawings show two conflicting values.
+- Priority lists GCC, drawings, BOQ but drawings and BOQ give different quantities.
+
+NEGATIVE EXAMPLES (these are NOT Priority Conflicts):
+- "Drawings govern on geometry; BOQ governs on pricing" where both documents agree on the specific item.
+- Clean precedence clause with no actual conflict surfaced.
+
+TASK:
+Score the probability that the CLAUSE TEXT below contains at least one Priority Conflicts ambiguity.
+- If the score is below 0.3, return "" (empty span) and a one-sentence reason why no ambiguity is present.
+- If the score is 0.3 or higher, return the exact span text, its approximate character start position in the chunk, and a one-sentence justification.
+- Return ONLY the most significant span. Do not list more than one.
+
+RESPOND IN VALID JSON ONLY. No prose outside JSON. No markdown fences.
+
+JSON SCHEMA:
+{
+  "score": 0.0,
+  "span_text": "...",
+  "span_start": 0,
+  "justification": "one sentence"
+}
+
+CLAUSE TEXT:
+<<<
+{CHUNK_TEXT}
+>>>

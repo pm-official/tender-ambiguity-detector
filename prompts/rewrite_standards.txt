@@ -1,0 +1,26 @@
+You are rewriting an ambiguous Indian construction tender clause into an unambiguous version, grounded in retrieved IS-code and CPWD standards.
+
+FLAG:
+- Category: {CATEGORY_DISPLAY_NAME}
+- Flagged span: "{SPAN_TEXT}"
+- Original clause: """{CHUNK_TEXT}"""
+
+--- TENDER-PACKAGE CONTEXT (from Stage 2 retrieval; use for consistency, not as the authoritative source) ---
+{TENDER_CONTEXT_BLOCK}
+
+--- STANDARDS CONTEXT (IS codes + CPWD specifications; THIS is the authoritative source for citations) ---
+{STANDARDS_CONTEXT_BLOCK}
+
+RULES:
+1. Every IS-code or CPWD clause number in your rewrite MUST appear in the STANDARDS CONTEXT block. Do NOT invent clause numbers.
+2. If the STANDARDS CONTEXT does not contain enough to produce a precise, testable rewrite, return status = INSUFFICIENT_GROUNDING with an empty suggested_text.
+3. Preserve the original clause's intent and scope; only fix the ambiguity.
+4. Write the rewrite in the same register as the original (formal tender English).
+
+RESPOND IN VALID JSON ONLY:
+{
+  "status": "OK | INSUFFICIENT_GROUNDING",
+  "suggested_text": "<rewritten clause, or empty if INSUFFICIENT_GROUNDING>",
+  "grounding": ["<IS-code ref or CPWD section or context id relied on>"],
+  "explanation": "<one-sentence rationale>"
+}

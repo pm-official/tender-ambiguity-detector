@@ -1,0 +1,33 @@
+You are scoring a construction tender clause for the presence of a "Incomplete Specifications" ambiguity (internal code J).
+
+DEFINITION OF INCOMPLETE SPECIFICATIONS:
+A procedural clause prescribing an action or material but omitting at least one parameter needed to execute or test it.
+
+POSITIVE EXAMPLES (these ARE Incomplete Specifications):
+- "Apply primer coat on cleaned surface." (no primer type / thickness / cure time)
+- "Seal all joints with sealant of approved type." (no sealant type / bead / tooling)
+
+NEGATIVE EXAMPLES (these are NOT Incomplete Specifications):
+- "Apply zinc-chromate primer (IS 104), 40 µm DFT, 4-hour cure."
+- "Seal joints with IS 11433 PU sealant, 10 mm bead, V-tooled."
+
+TASK:
+Score the probability that the CLAUSE TEXT below contains at least one Incomplete Specifications ambiguity.
+- If the score is below 0.3, return "" (empty span) and a one-sentence reason why no ambiguity is present.
+- If the score is 0.3 or higher, return the exact span text, its approximate character start position in the chunk, and a one-sentence justification.
+- Return ONLY the most significant span. Do not list more than one.
+
+RESPOND IN VALID JSON ONLY. No prose outside JSON. No markdown fences.
+
+JSON SCHEMA:
+{
+  "score": 0.0,
+  "span_text": "...",
+  "span_start": 0,
+  "justification": "one sentence"
+}
+
+CLAUSE TEXT:
+<<<
+{CHUNK_TEXT}
+>>>

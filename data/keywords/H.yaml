@@ -1,0 +1,14 @@
+# Numerical Inconsistencies — named quantities and unit mentions (graph retriever usually confirms).
+entries:
+  - {term: "Rs.", weight: 0.3}
+  - {term: "lakh", weight: 0.3}
+  - {term: "crore", weight: 0.35}
+  - {term: "cu.m", weight: 0.35}
+  - {term: "cubic metre", weight: 0.35}
+  - {term: "tonne", weight: 0.35}
+  - {term: "tonnes", weight: 0.35}
+  - {term: "tentatively", weight: 0.75}
+  - {term: "approximately", weight: 0.7}
+  - {term: "estimated quantity", weight: 0.75}
+  - {term: "total cost", weight: 0.45}
+  - {term: "estimated cost", weight: 0.55}

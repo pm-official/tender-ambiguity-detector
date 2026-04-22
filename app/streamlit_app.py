@@ -1,9 +1,13 @@
-"""Tender Ambiguity Detector — Streamlit entry point."""
+"""Tender Ambiguity Detector — Streamlit entry point (Prompt-4 package-aware)."""
 from __future__ import annotations
 
+import io
 import json
+import os
 import sys
 import time
+import uuid
+import zipfile
 from pathlib import Path
 
 # allow `from src import ...`
@@ -30,18 +34,18 @@ st.set_page_config(
 
 
 # ---------------------------------------------------------------------------
-# Global header
+# Header + tour + glossary
 # ---------------------------------------------------------------------------
 
 
 def _onboarding_tour():
     steps = [
-        ("Welcome", "TAD reads Indian construction tender PDFs and flags 8 categories of ambiguity. Every number has an (ℹ) icon — click any of them to see what it means."),
-        ("Upload a PDF", "Go to **Analyse**. Upload a tender PDF (or pick a sample). Hit Run."),
-        ("Read the flags", "Each flag shows a highlighted span, a category badge, an agreement-rate, and a confidence. The category badge's ℹ opens the definition."),
-        ("Open a flag card", "Each flag has 3 expanders: *Why flagged* (3-pass ensemble + probe), *How adjudicated* (retrieval + judge), *Suggested rewrite* (IS-code grounded)."),
-        ("Check Metrics", "The Metrics tab shows per-category precision/recall/F1 with worked examples. The false-resolution-rate is the safety metric."),
-        ("About this method", "For a quick read of how everything fits together, visit the About tab."),
+        ("Welcome", "TAD reads a whole Indian construction tender *package* and flags 8 kinds of ambiguity. Every number has an (ℹ) icon — click any of them to see what it means."),
+        ("Upload your package", "Go to **Analyse**. Drop all PDFs for the tender (GCC, NIT, Specs, BOQ, Drawings, Addenda). Tag each document's type and pick which ones to analyse."),
+        ("Dual-scoring detection", "Every chunk gets a **keyword score** (from the lexicon) and an **LLM score** (from a single calibrated call). Combined above the threshold → flagged."),
+        ("Package context resolution", "For each flag, TAD retrieves context from the *whole* tender package. If a different document defines the term, the flag becomes **Resolved by Context** — not a real ambiguity."),
+        ("Standards-grounded rewrite", "For **Confirmed Ambiguous** flags, TAD drafts a replacement clause grounded in IS codes and CPWD specifications."),
+        ("About this method", "The About tab has the full method diagram, the eight categories, the verdicts, and the metrics."),
     ]
     st.session_state.setdefault("tour_step", 0)
     step = st.session_state["tour_step"]
@@ -66,13 +70,15 @@ def _onboarding_tour():
 
 
 def _glossary_modal():
-    with st.expander("📚 Glossary of terms used in this app", expanded=True):
+    with st.expander("📚 Glossary", expanded=True):
         all_expl = explain.all_explanations()
         groups = {
             "Categories": all_expl.get("categories", {}),
             "Verdicts": all_expl.get("verdicts", {}),
+            "Scoring": all_expl.get("scoring", {}),
             "Metrics": all_expl.get("metrics", {}),
             "Stages": all_expl.get("stages", {}),
+            "Document types": all_expl.get("document_types", {}),
             "Parameters": all_expl.get("params", {}),
         }
         for gname, items in groups.items():
@@ -80,7 +86,7 @@ def _glossary_modal():
             for k, v in items.items():
                 if not isinstance(v, dict):
                     continue
-                st.markdown(f"- **{v.get('title', k)}** — {v.get('what','')}")
+                st.markdown(f"- **{v.get('title', k)}** — {v.get('what', '')}")
 
 
 def _header():
@@ -90,15 +96,15 @@ def _header():
                     padding:4px 0 8px 0;border-bottom:1px solid #E6E8EB;margin-bottom:10px'>
           <div>
             <div style='font-size:1.35rem;font-weight:700;color:#1F4E79'>📑 Tender Ambiguity Detector</div>
-            <div style='color:#555;font-size:0.88rem'>Self-explaining detection, hybrid retrieval, IS-code-grounded rewrites.</div>
+            <div style='color:#555;font-size:0.88rem'>Package upload · Dual-scoring detection · Two-stage RAG · Standards-grounded rewrite.</div>
           </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
-    c1, c2, c3 = st.columns([1, 1, 8])
+    c1, c2, _ = st.columns([1, 1, 8])
     with c1:
-        if st.button("❓ What is this?", help="Start a 6-step tour"):
+        if st.button("❓ What is this?", help="6-step tour of the app"):
             st.session_state["show_tour"] = True
     with c2:
         if st.button("📚 Glossary"):
@@ -109,6 +115,11 @@ def _header():
         _glossary_modal()
 
 
+# ---------------------------------------------------------------------------
+# Sidebar
+# ---------------------------------------------------------------------------
+
+
 def _sidebar():
     with st.sidebar:
         st.markdown("### Run configuration")
@@ -116,149 +127,291 @@ def _sidebar():
         st.markdown("**Enabled categories**")
         st.caption("Pick which ambiguity categories the detector will run.")
         cats_enabled = []
-        cols = st.columns(4)
-        for i, cat in enumerate(config.ENABLED_CATEGORIES):
-            with cols[i % 4]:
-                on = st.checkbox(cat, value=True, key=f"en_{cat}", help=info_tooltip(f"categories.{cat}"))
-                if on:
-                    cats_enabled.append(cat)
+        for cat in config.ENABLED_CATEGORIES:
+            name = explain.category_display(cat)
+            c1, c2 = st.columns([5, 1])
+            with c1:
+                on = st.checkbox(name, value=True, key=f"en_{cat}", help=info_tooltip(f"categories.{cat}"))
+            with c2:
+                info_popover(f"categories.{cat}", label="ℹ")
+            if on:
+                cats_enabled.append(cat)
         st.session_state["enabled_categories"] = cats_enabled
 
         st.markdown("---")
+        st.markdown("**Scoring**")
+        c1, c2 = st.columns([5, 1])
+        with c1:
+            alpha = st.slider(
+                "Keyword weight α",
+                0.0,
+                1.0,
+                value=float(config.KEYWORD_SCORE_WEIGHT_ALPHA),
+                step=0.05,
+                help=info_tooltip("scoring.alpha"),
+            )
+        with c2:
+            info_popover("scoring.alpha")
+        st.session_state["alpha"] = alpha
+
+        c1, c2 = st.columns([5, 1])
+        with c1:
+            thr = st.slider(
+                "Detection threshold",
+                0.0,
+                1.0,
+                value=float(config.DETECTION_THRESHOLD),
+                step=0.05,
+                help=info_tooltip("scoring.detection_threshold"),
+            )
+        with c2:
+            info_popover("scoring.detection_threshold")
+        st.session_state["threshold"] = thr
+
+        st.markdown("---")
         st.markdown("**Guardrails**")
-        c1, c2 = st.columns([5, 1])
-        with c1:
-            st.session_state["disable_neg_probe"] = not st.checkbox(
-                "G2 — negative-control probe", value=True, help=info_tooltip("stages.merge_probe")
-            )
-        with c2:
-            info_popover("stages.merge_probe")
-        c1, c2 = st.columns([5, 1])
-        with c1:
-            st.session_state["disable_citation_judge"] = not st.checkbox(
-                "G3 — citation judge", value=True, help=info_tooltip("stages.judge_citations")
-            )
-        with c2:
-            info_popover("stages.judge_citations")
-        c1, c2 = st.columns([5, 1])
-        with c1:
-            st.session_state["disable_ground_verify"] = not st.checkbox(
-                "G4 — grounding verification", value=True, help=info_tooltip("stages.verify_grounding")
-            )
-        with c2:
-            info_popover("stages.verify_grounding")
+        for key, label, expl_key in [
+            ("disable_neg_probe", "G2 — negative-control probe", "stages.detect"),
+            ("disable_citation_judge", "G3 — citation judge", "stages.judge_citations"),
+            ("disable_ground_verify", "G4 — grounding verification", "stages.verify_grounding"),
+        ]:
+            c1, c2 = st.columns([5, 1])
+            with c1:
+                on = st.checkbox(label, value=True, help=info_tooltip(expl_key))
+                st.session_state[key] = not on
+            with c2:
+                info_popover(expl_key, label="ℹ")
 
         st.markdown("---")
-        st.markdown("**Per-category thresholds**")
-        st.caption("Calibration-tuned minima. Run calibration to update these.")
-        for cat in config.ENABLED_CATEGORIES:
-            cc1, cc2 = st.columns([5, 1])
-            with cc1:
-                st.slider(
-                    f"Threshold {cat}",
-                    0.0,
-                    1.0,
-                    value=float(config.DETECTION_CONFIDENCE_THRESHOLD.get(cat, 0.55)),
-                    step=0.05,
-                    key=f"thr_{cat}",
-                )
-            with cc2:
-                info_popover("params.DETECTION_CONFIDENCE_THRESHOLD", label="ℹ")
+        c1, c2 = st.columns([5, 1])
+        with c1:
+            use_legacy = st.checkbox(
+                "Use legacy 3-pass ensemble",
+                value=bool(config.USE_LEGACY_ENSEMBLE),
+                help=info_tooltip("params.USE_LEGACY_ENSEMBLE"),
+            )
+        with c2:
+            info_popover("params.USE_LEGACY_ENSEMBLE", label="ℹ")
+        st.session_state["use_legacy_ensemble"] = use_legacy
 
         st.markdown("---")
-        st.markdown("**Model configuration**")
-        with st.expander("Models in use"):
+        st.markdown("**Models in use**")
+        with st.expander("Show"):
             for k, v in config.dump().items():
                 st.markdown(f"- `{k}` = `{v}`")
-            info_popover("params.DETECTION_MODEL", label="ℹ detection model")
-            info_popover("params.ADJUDICATION_MODEL", label="ℹ adjudication model")
 
-        st.markdown("---")
         st.caption("TAD — M.Tech thesis project, IIT Bombay.")
 
 
 # ---------------------------------------------------------------------------
-# Tabs
+# Analyse tab — package flow
 # ---------------------------------------------------------------------------
 
 
+def _stage_pdfs(uploaded_files, zip_bytes, staging: Path) -> list[Path]:
+    """Write UploadedFile objects / ZIP contents to the staging dir and return paths."""
+    staging.mkdir(parents=True, exist_ok=True)
+    out: list[Path] = []
+    for u in uploaded_files or []:
+        p = staging / u.name
+        p.write_bytes(u.getvalue() if hasattr(u, "getvalue") else u.read())
+        out.append(p)
+    if zip_bytes:
+        try:
+            zf = zipfile.ZipFile(io.BytesIO(zip_bytes))
+            for name in zf.namelist():
+                if not name.lower().endswith(".pdf"):
+                    continue
+                base = Path(name).name
+                if not base:
+                    continue
+                p = staging / base
+                p.write_bytes(zf.read(name))
+                out.append(p)
+        except Exception as e:
+            st.error(f"Could not read zip: {e}")
+    return out
+
+
+def _auto_type_hint(filename: str) -> str:
+    from src.pipeline import _auto_document_type
+    return _auto_document_type(filename)
+
+
 def _analyse_tab():
-    st.markdown("### Analyse a tender")
+    st.markdown("### Analyse a tender package")
     st.caption(
-        "Upload a tender PDF (or pick a sample), then click **Run pipeline**. "
-        "Every (ℹ) opens a full explanation."
+        "Upload all PDFs belonging to a single tender (GCC, NIT, Specs, BOQ, Drawings, Addenda). "
+        "Tag each document and pick which ones to analyse. Every (ℹ) opens a full explanation."
     )
 
-    # Sample picker
     sample_dir = Path(__file__).resolve().parent.parent / "data" / "sample_tenders"
     samples = sorted(sample_dir.glob("*.pdf")) if sample_dir.exists() else []
 
+    # Upload
     c1, c2 = st.columns([3, 2])
     with c1:
-        uploaded = st.file_uploader("Upload PDF(s)", type=["pdf"], accept_multiple_files=True)
+        pdfs_upload = st.file_uploader(
+            "Upload PDFs (multiple)", type=["pdf"], accept_multiple_files=True, key="pkg_pdfs"
+        )
     with c2:
-        sample_name = st.selectbox(
-            "…or pick a sample",
-            options=["— none —"] + [p.name for p in samples],
-            help="Samples are included in data/sample_tenders/.",
+        zip_upload = st.file_uploader(
+            "…or upload a single ZIP containing the PDFs",
+            type=["zip"],
+            accept_multiple_files=False,
+            key="pkg_zip",
         )
 
+    # Sample shortcut
+    sample_name = st.selectbox(
+        "…or pick a sample tender (appended)",
+        options=["— none —"] + [p.name for p in samples],
+        help=info_tooltip("document_types.Other"),
+    )
+
+    # Materialise files into a staging dir
+    staging = Path(__file__).resolve().parent.parent / "output" / "_uploads" / f"session_{st.session_state.get('session_id') or 'default'}"
+    if "session_id" not in st.session_state:
+        st.session_state["session_id"] = uuid.uuid4().hex[:8]
+        staging = Path(__file__).resolve().parent.parent / "output" / "_uploads" / f"session_{st.session_state['session_id']}"
+    staging.mkdir(parents=True, exist_ok=True)
+
+    pdf_paths: list[Path] = []
+    if pdfs_upload or zip_upload:
+        pdf_paths = _stage_pdfs(
+            pdfs_upload or [],
+            zip_upload.getvalue() if zip_upload else None,
+            staging,
+        )
+    if sample_name and sample_name != "— none —":
+        pdf_paths.append(sample_dir / sample_name)
+
+    # Document typing + selection table
+    doc_types: dict[str, str] = {}
+    analyse_flags: dict[str, bool] = {}
+    analyse_selection: dict[str, tuple[int, int] | None] = {}
+
+    if pdf_paths:
+        st.markdown("#### Package contents")
+        h1, h2, h3, h4, h5, h6 = st.columns([3, 3, 1, 1, 1.5, 0.5])
+        h1.markdown("**Filename**")
+        h2.markdown("**Document type**")
+        h3.markdown("**Size**")
+        h4.markdown("**Analyse**")
+        h5.markdown("**Page range**")
+        with h6:
+            info_popover("document_types.GCC", label="ℹ")
+        for p in pdf_paths:
+            c1, c2, c3, c4, c5, c6 = st.columns([3, 3, 1, 1, 1.5, 0.5])
+            with c1:
+                st.markdown(f"`{p.name}`")
+            with c2:
+                idx = config.PACKAGE_DOCUMENT_TYPES.index(
+                    _auto_type_hint(p.name)
+                ) if _auto_type_hint(p.name) in config.PACKAGE_DOCUMENT_TYPES else 0
+                sel = st.selectbox(
+                    f"type_{p.name}",
+                    options=config.PACKAGE_DOCUMENT_TYPES,
+                    index=idx,
+                    key=f"dt_{p.name}",
+                    label_visibility="collapsed",
+                )
+                doc_types[p.name] = sel
+            with c3:
+                try:
+                    st.caption(f"{p.stat().st_size // 1024} KB")
+                except Exception:
+                    st.caption("?")
+            with c4:
+                analyse_flags[p.name] = st.checkbox(
+                    f"an_{p.name}", value=True, key=f"an_{p.name}", label_visibility="collapsed"
+                )
+            with c5:
+                rng = st.text_input(
+                    f"pg_{p.name}",
+                    value="",
+                    placeholder="e.g. 3-12",
+                    key=f"pg_{p.name}",
+                    label_visibility="collapsed",
+                )
+                if rng.strip():
+                    try:
+                        s, e = rng.split("-")
+                        analyse_selection[p.name] = (int(s), int(e))
+                    except Exception:
+                        analyse_selection[p.name] = None
+                else:
+                    analyse_selection[p.name] = None
+            with c6:
+                info_popover(f"document_types.{doc_types[p.name]}", label="ℹ")
+
+        m1, m2, m3 = st.columns(3)
+        with m1:
+            st.metric(
+                "Documents uploaded",
+                len(pdf_paths),
+                help="Total PDFs in this tender package (all indexed for retrieval).",
+            )
+        with m2:
+            st.metric(
+                "Documents selected for flag generation",
+                sum(1 for k, v in analyse_flags.items() if v),
+                help="Flags are generated only from these documents; the others still contribute to Stage 2 retrieval.",
+            )
+        with m3:
+            st.metric(
+                "Document types present",
+                len({t for t in doc_types.values()}),
+                help="Distinct tag types across the uploaded files.",
+            )
+
+    # Run button
     cc1, cc2 = st.columns([1, 5])
     with cc1:
-        run_btn = st.button("▶ Run pipeline", type="primary", use_container_width=True)
+        run_btn = st.button("▶ Run pipeline", type="primary", use_container_width=True, disabled=not pdf_paths)
     with cc2:
-        st.caption("Runs parse → chunk → embed → graph → 3-pass detection → resolve → rewrite.")
+        st.caption("Runs parse → chunk → index package → dual-scoring detection → package context resolution → standards-grounded rewrite.")
 
     tracker_placeholder = st.container()
     progress_placeholder = st.empty()
 
-    if run_btn:
-        pdfs: list[Path] = []
-        staging = Path(__file__).resolve().parent.parent / "output" / "_uploads"
-        staging.mkdir(parents=True, exist_ok=True)
-        if uploaded:
-            for u in uploaded:
-                p = staging / u.name
-                p.write_bytes(u.read())
-                pdfs.append(p)
-        if sample_name and sample_name != "— none —":
-            pdfs.append(sample_dir / sample_name)
-        if not pdfs:
-            st.warning("Upload at least one PDF or pick a sample.")
-        else:
-            progress = {}
-            active = {"stage": None, "msg": ""}
+    if run_btn and pdf_paths:
+        progress = {}
 
-            def _cb(stage, pct, msg):
-                progress[stage] = max(pct, progress.get(stage, 0.0))
-                active["stage"] = stage
-                active["msg"] = msg
-                with tracker_placeholder:
-                    render_tracker(progress, active_stage=stage)
-                progress_placeholder.info(f"{stage}: {msg}")
+        def _cb(stage, pct, msg):
+            progress[stage] = max(pct, progress.get(stage, 0.0))
+            with tracker_placeholder:
+                render_tracker(progress, active_stage=stage)
+            progress_placeholder.info(f"{stage}: {msg}")
 
-            try:
-                result = run_pipeline(
-                    pdfs,
-                    enabled_categories=st.session_state.get("enabled_categories"),
-                    disable_neg_probe=st.session_state.get("disable_neg_probe", False),
-                    disable_citation_judge=st.session_state.get("disable_citation_judge", False),
-                    disable_ground_verify=st.session_state.get("disable_ground_verify", False),
-                    progress_cb=_cb,
-                )
-                progress_placeholder.success(
-                    f"Pipeline complete in {result.elapsed_seconds:.1f}s — run_id = {result.run_id}"
-                )
-                st.session_state["last_run_id"] = result.run_id
-            except Exception as e:
-                progress_placeholder.error(f"Pipeline failed: {e}")
-                st.exception(e)
+        try:
+            result = run_pipeline(
+                pdf_paths,
+                package_types=doc_types,
+                analyse_selection=analyse_selection,
+                analyse_flags=analyse_flags,
+                enabled_categories=st.session_state.get("enabled_categories"),
+                alpha=st.session_state.get("alpha"),
+                threshold=st.session_state.get("threshold"),
+                disable_neg_probe=st.session_state.get("disable_neg_probe", False),
+                disable_citation_judge=st.session_state.get("disable_citation_judge", False),
+                disable_ground_verify=st.session_state.get("disable_ground_verify", False),
+                use_legacy_ensemble=st.session_state.get("use_legacy_ensemble", False),
+                progress_cb=_cb,
+            )
+            progress_placeholder.success(
+                f"Pipeline complete in {result.elapsed_seconds:.1f}s — run_id = {result.run_id}"
+            )
+            st.session_state["last_run_id"] = result.run_id
+        except Exception as e:
+            progress_placeholder.error(f"Pipeline failed: {e}")
+            st.exception(e)
 
+    # --- Results browsing ---
     st.markdown("---")
-    # Run selector
     runs = list_runs()
     if not runs:
-        st.info("No completed runs yet. Run the pipeline above.")
+        st.info("No completed runs yet. Upload a tender package and run the pipeline above.")
         return
     default_run = st.session_state.get("last_run_id") or runs[0]
     if default_run not in runs:
@@ -267,63 +420,125 @@ def _analyse_tab():
     data = load_pipeline_result(run_id)
     st.session_state["current_run_data"] = data
 
-    result = data.get("result", {})
+    result = data.get("result", {}) or {}
+    legacy_badge = " · legacy ensemble" if data.get("is_legacy_run") else ""
     m1, m2, m3, m4, m5 = st.columns(5)
     m1.metric("Chunks", result.get("n_chunks", 0), help=info_tooltip("stages.chunk"))
-    m2.metric("Confirmed", result.get("n_flags_confirmed", 0), help=info_tooltip("metrics.agreement_rate"))
-    m3.metric("Review queue", result.get("n_flags_review", 0), help=info_tooltip("metrics.agreement_rate"))
-    m4.metric("Resolutions", result.get("n_resolutions", 0), help=info_tooltip("stages.resolve"))
-    m5.metric("Rewrites", result.get("n_rewrites", 0), help=info_tooltip("stages.rewrite"))
+    m2.metric("Confirmed Stage-1 flags" + legacy_badge, result.get("n_flags_confirmed", 0), help=info_tooltip("stages.detect"))
+    m3.metric("Review queue", result.get("n_flags_review", 0), help=info_tooltip("stages.detect"))
+    m4.metric("Stage-2 verdicts", result.get("n_resolutions", 0), help=info_tooltip("stages.resolve"))
+    m5.metric("Stage-3 rewrites", result.get("n_rewrites", 0), help=info_tooltip("stages.rewrite"))
 
-    # filter bar
-    flags = data.get("flags", []) or []
-    chunks_map = {c.get("id"): c for c in (data.get("chunks") or [])}
+    flags = data.get("flags") or []
+    chunks_list = data.get("chunks") or []
+    chunks_map = {c.get("id"): c for c in chunks_list}
     resolutions_map = {r.get("flag_id"): r for r in (data.get("resolutions") or [])}
     rewrites_map = {r.get("flag_id"): r for r in (data.get("rewrites") or [])}
 
-    filt_cols = st.columns([2, 2, 2, 3])
+    def _verdict_for(flag):
+        r = resolutions_map.get(flag.get("id"))
+        return r.get("verdict") if r else None
+
+    # Filter bar
+    filt_cols = st.columns([2.2, 2.2, 2, 2])
     with filt_cols[0]:
-        cat_filter = st.multiselect("Categories", sorted({f.get("category") for f in flags}), default=None)
-    with filt_cols[1]:
-        status_filter = st.multiselect("Status", ["CONFIRMED", "REVIEW_QUEUE"], default=["CONFIRMED"])
-    with filt_cols[2]:
-        verdict_filter = st.multiselect(
-            "Verdict",
-            ["RESOLVED", "PARTIALLY_RESOLVED", "UNRESOLVED", "(no resolution)"],
-            default=None,
+        cat_display_opts = sorted(
+            {f.get("category") for f in flags if f.get("category")},
+            key=lambda x: explain.category_display(x),
         )
+        sel_cats = st.multiselect(
+            "Categories",
+            options=cat_display_opts,
+            format_func=explain.category_display,
+        )
+    with filt_cols[1]:
+        verdict_opts = ["CONFIRMED_AMBIGUOUS", "PARTIALLY_RESOLVED", "RESOLVED_BY_CONTEXT", "(no verdict)"]
+        sel_verdicts = st.multiselect(
+            "Verdict",
+            options=verdict_opts,
+            format_func=lambda v: explain.verdict_display(v) if v != "(no verdict)" else "(no verdict)",
+        )
+    with filt_cols[2]:
+        doc_types_in_run = sorted({c.get("document_type") for c in chunks_list if c.get("document_type")})
+        sel_docs = st.multiselect("Document type", options=doc_types_in_run)
     with filt_cols[3]:
-        sort_by = st.selectbox("Sort by", ["mean_confidence", "agreement_rate", "category"], index=0)
+        sort_by = st.selectbox("Sort by", ["combined_score", "llm_score", "keyword_score", "category"], index=0)
 
     def _pred(f):
-        if cat_filter and f.get("category") not in cat_filter:
+        if sel_cats and f.get("category") not in sel_cats:
             return False
-        if status_filter and f.get("status") not in status_filter:
+        v = _verdict_for(f) or "(no verdict)"
+        # Normalise legacy synonyms
+        v_norm = {"RESOLVED": "RESOLVED_BY_CONTEXT", "UNRESOLVED": "CONFIRMED_AMBIGUOUS"}.get(v, v)
+        if sel_verdicts and v_norm not in sel_verdicts:
             return False
-        if verdict_filter:
-            v = resolutions_map.get(f.get("id"), {}).get("verdict", "(no resolution)")
-            if v not in verdict_filter:
-                return False
+        chk = chunks_map.get(f.get("chunk_id")) or {}
+        if sel_docs and chk.get("document_type") not in sel_docs:
+            return False
         return True
 
     selected_flags = [f for f in flags if _pred(f)]
     if sort_by == "category":
-        selected_flags.sort(key=lambda x: x.get("category", "ZZ"))
+        selected_flags.sort(key=lambda x: explain.category_display(x.get("category", "")))
     else:
-        selected_flags.sort(key=lambda x: x.get(sort_by, 0), reverse=True)
+        selected_flags.sort(key=lambda x: float(x.get(sort_by) or 0), reverse=True)
 
-    st.caption(f"Showing {len(selected_flags)} / {len(flags)} flags")
-    for f in selected_flags[:200]:
-        chunk_text = (chunks_map.get(f.get("chunk_id")) or {}).get("text", "") or ""
-        render_flag_card(f, chunk_text, resolutions_map.get(f.get("id")), rewrites_map.get(f.get("id")))
+    # Split into Confirmed vs Resolved buckets
+    def _bucket(f):
+        v = _verdict_for(f)
+        if explain.verdict_display(v or "") == "Resolved by Context":
+            return "resolved"
+        return "confirmed"
+
+    confirmed = [f for f in selected_flags if _bucket(f) == "confirmed"]
+    resolved = [f for f in selected_flags if _bucket(f) == "resolved"]
+
+    st.caption(f"Showing {len(selected_flags)} of {len(flags)} flags · {len(confirmed)} Confirmed / {len(resolved)} Resolved by Context")
+
+    def _render_cards(fs):
+        for f in fs[:200]:
+            chk = chunks_map.get(f.get("chunk_id")) or {}
+            render_flag_card(
+                f,
+                chk.get("text", "") or "",
+                chk,
+                resolutions_map.get(f.get("id")),
+                rewrites_map.get(f.get("id")),
+            )
+
+    st.markdown("## ⚠ Confirmed Ambiguous flags")
+    if not confirmed:
+        st.caption("No confirmed flags in this run (or all filtered out).")
+    _render_cards(confirmed)
+
+    if resolved:
+        st.markdown("## ✅ Resolved by Context — context found elsewhere in the package")
+        st.caption(
+            "These flags looked ambiguous in the flagged chunk but were disambiguated by other documents in the package. "
+            "Shown here for transparency — no rewrite is needed."
+        )
+        _render_cards(resolved)
+
+    # Exports
+    st.markdown("---")
+    if flags:
+        df = pd.DataFrame(flags)
+        df["category_name"] = df["category"].apply(explain.category_display)
+        st.download_button(
+            "⬇ Download flags CSV (with display names)",
+            df.to_csv(index=False),
+            file_name=f"flags_{run_id}.csv",
+        )
+
+
+# ---------------------------------------------------------------------------
+# Annotate tab
+# ---------------------------------------------------------------------------
 
 
 def _annotate_tab():
     st.markdown("### Annotate (gold-set spot-check)")
-    st.caption(
-        "This is Phase 5 of the annotation protocol. Review the auto-selected queue and confirm / reject each flag. "
-        "Your verdicts override the LLM-as-Judge vote."
-    )
+    st.caption("Confirm or reject each flag. Your verdicts override the automated judge.")
     info_popover("annotation_protocol.phase_5_human", label="ℹ about the annotation protocol")
 
     data = st.session_state.get("current_run_data")
@@ -333,7 +548,6 @@ def _annotate_tab():
 
     flags = data.get("flags") or []
     chunks_map = {c.get("id"): c for c in (data.get("chunks") or [])}
-
     st.session_state.setdefault("gold_labels", {})
     gold = st.session_state["gold_labels"]
 
@@ -342,119 +556,126 @@ def _annotate_tab():
             c1, c2, c3 = st.columns([4, 2, 2])
             with c1:
                 st.markdown(
-                    f"**{f.get('category')}** — `{f.get('span_text','')[:80]}`  "
-                    f"(conf={float(f.get('mean_confidence',0)):.2f}, agree={float(f.get('agreement_rate',0))*100:.0f}%)"
+                    f"**{explain.category_display(f.get('category'))}** — `{(f.get('span_text') or '')[:80]}`  "
+                    f"(combined={float(f.get('combined_score', 0)):.2f}, kw={float(f.get('keyword_score', 0)):.2f}, "
+                    f"llm={float(f.get('llm_score', 0)):.2f})"
                 )
                 chk = chunks_map.get(f.get("chunk_id"))
                 if chk:
-                    st.caption(chk.get("text", "")[:260])
+                    st.caption((chk.get("text") or "")[:260])
             with c2:
                 options = ["(not decided)", "TRUE_POSITIVE", "FALSE_POSITIVE", "WRONG_CATEGORY", "UNCERTAIN"]
                 cur = gold.get(f.get("id"), {}).get("decision", "(not decided)")
                 idx = options.index(cur) if cur in options else 0
-                dec = st.selectbox(f"Label for flag {i+1}", options, index=idx, key=f"ann_{f.get('id')}", label_visibility="collapsed")
+                dec = st.selectbox(
+                    f"Label flag {i+1}", options, index=idx, key=f"ann_{f.get('id')}", label_visibility="collapsed"
+                )
                 if dec != "(not decided)":
                     gold[f.get("id")] = {"decision": dec, "flag": f}
             with c3:
-                st.markdown(" ")
                 info_popover(f"categories.{f.get('category')}", label="ℹ category definition")
 
-    # export
     if gold:
         df = pd.DataFrame(
             {
                 "flag_id": k,
                 "category": v["flag"].get("category"),
+                "category_name": explain.category_display(v["flag"].get("category")),
                 "span_text": v["flag"].get("span_text"),
                 "decision": v["decision"],
             }
             for k, v in gold.items()
         )
-        st.markdown("**Your gold annotations so far:**")
         st.dataframe(df, use_container_width=True, hide_index=True)
-        st.download_button(
-            "⬇ Download gold CSV", df.to_csv(index=False), file_name="gold_annotations.csv"
-        )
+        st.download_button("⬇ Download gold CSV", df.to_csv(index=False), file_name="gold_annotations.csv")
+
+
+# ---------------------------------------------------------------------------
+# Metrics tab
+# ---------------------------------------------------------------------------
 
 
 def _metrics_tab():
     st.markdown("### Metrics")
-    st.caption("Every metric has an (ℹ) button that opens what/why/how/benchmark/example.")
+    st.caption("Every metric has an (ℹ) popover with worked examples.")
 
     data = st.session_state.get("current_run_data")
     if not data:
-        st.info("Run the pipeline first (Analyse tab) and pick a run on the Analyse tab.")
+        st.info("Run the pipeline first on the Analyse tab.")
         return
 
-    flags = data.get("flags", []) or []
-    resolutions = data.get("resolutions", []) or []
+    flags = data.get("flags") or []
+    resolutions = data.get("resolutions") or []
+    alpha = st.session_state.get("alpha", config.KEYWORD_SCORE_WEIGHT_ALPHA)
 
-    st.markdown("#### Flag distribution")
-    per_cat = {}
+    # Flag distribution
+    per_cat: dict[str, int] = {}
     for f in flags:
         if f.get("status") != "CONFIRMED":
             continue
         per_cat[f.get("category")] = per_cat.get(f.get("category"), 0) + 1
     if per_cat:
-        df = pd.DataFrame({"category": list(per_cat.keys()), "count": list(per_cat.values())}).sort_values("category")
+        df = pd.DataFrame(
+            {"category": [explain.category_display(k) for k in per_cat.keys()], "count": list(per_cat.values())}
+        ).sort_values("category")
+        st.markdown("#### Flag distribution (confirmed at Stage 1)")
         st.bar_chart(df.set_index("category"))
-    else:
-        st.caption("No confirmed flags in this run.")
 
-    st.markdown("#### Verdict distribution")
-    verdict_counts = {"RESOLVED": 0, "PARTIALLY_RESOLVED": 0, "UNRESOLVED": 0}
+    # Verdict distribution (Stage 2)
+    st.markdown("#### Stage 2 verdict distribution")
+    counts = {"CONFIRMED_AMBIGUOUS": 0, "PARTIALLY_RESOLVED": 0, "RESOLVED_BY_CONTEXT": 0}
     for r in resolutions:
-        v = r.get("verdict")
-        if v in verdict_counts:
-            verdict_counts[v] += 1
+        v = r.get("verdict") or ""
+        v = {"RESOLVED": "RESOLVED_BY_CONTEXT", "UNRESOLVED": "CONFIRMED_AMBIGUOUS"}.get(v, v)
+        if v in counts:
+            counts[v] += 1
     cols = st.columns(3)
-    for i, (v, n) in enumerate(verdict_counts.items()):
+    for i, (k, n) in enumerate(counts.items()):
         with cols[i]:
-            st.metric(v, n, help=info_tooltip(f"verdicts.{v}"))
-            info_popover(f"verdicts.{v}")
+            st.metric(explain.verdict_display(k), n, help=info_tooltip(f"verdicts.{k}"))
+            info_popover(f"verdicts.{k}")
 
+    # Resolved-by-context rate
+    total_confirmed = sum(1 for f in flags if f.get("status") == "CONFIRMED")
+    rbc_rate = counts["RESOLVED_BY_CONTEXT"] / total_confirmed if total_confirmed else 0.0
+    c1, c2 = st.columns([5, 1])
+    with c1:
+        st.metric(
+            "Resolved-by-context rate",
+            f"{rbc_rate * 100:.1f}%",
+            help=info_tooltip("metrics.resolved_by_context_rate"),
+        )
+    with c2:
+        info_popover("metrics.resolved_by_context_rate")
+
+    # Keyword vs LLM contribution
+    st.markdown("#### Keyword vs LLM contribution (per category)")
+    contrib_rows = []
+    for cat in sorted({f.get("category") for f in flags if f.get("status") == "CONFIRMED"}):
+        subset = [f for f in flags if f.get("category") == cat and f.get("status") == "CONFIRMED"]
+        kw_led = sum(
+            1
+            for f in subset
+            if alpha * float(f.get("keyword_score", 0)) > (1 - alpha) * float(f.get("llm_score", 0))
+        )
+        llm_led = len(subset) - kw_led
+        contrib_rows.append({
+            "category": explain.category_display(cat),
+            "keyword-led": kw_led,
+            "llm-led": llm_led,
+        })
+    if contrib_rows:
+        st.dataframe(pd.DataFrame(contrib_rows), use_container_width=True, hide_index=True)
+    info_popover("metrics.keyword_vs_llm_contribution", label="ℹ what does keyword-led mean?")
+
+    # Safety metric
     st.markdown("#### Safety metric — false-resolution rate")
-    st.caption(
-        "Computed only when you provide audits (in the Annotate tab). "
-        "Until then we show N/A and leave the band blank. This is intentional honesty — "
-        "see the info icon."
-    )
     c1, c2 = st.columns([5, 1])
     with c1:
         st.metric("false_resolution_rate", "—", help=info_tooltip("metrics.false_resolution_rate"))
     with c2:
         info_popover("metrics.false_resolution_rate")
-
-    st.markdown("#### Gold-set metrics (precision / recall / F1)")
-    st.caption(
-        "Load a gold CSV (output/gold/gold_*.csv) to compute per-category precision, recall, F1 "
-        "with worked examples."
-    )
-    up = st.file_uploader("Upload a gold CSV", type=["csv"], key="gold_uploader")
-    if up is not None:
-        import io
-
-        gold_df = pd.read_csv(io.BytesIO(up.getvalue()))
-        st.dataframe(gold_df.head(), use_container_width=True, hide_index=True)
-        # Convert to the format the evaluator expects
-        gold_records = gold_df.to_dict(orient="records")
-        pred_records = [
-            {
-                "category": f.get("category"),
-                "chunk_id": f.get("chunk_id"),
-                "span_char_start": f.get("span_char_start", 0),
-                "span_char_end": f.get("span_char_end", 0),
-            }
-            for f in flags
-            if f.get("status") == "CONFIRMED"
-        ]
-        try:
-            from src.evaluator import detection_metrics
-            m = detection_metrics(pred_records, gold_records)
-            st.dataframe(pd.DataFrame(m["per_category"]), use_container_width=True, hide_index=True)
-            st.metric("F1 (macro)", f"{m['overall']['f1_macro']:.3f}", help=info_tooltip("metrics.f1"))
-        except Exception as e:
-            st.error(f"metric computation failed: {e}")
+    st.caption("Populated when you upload an audit CSV of spot-checked RESOLVED_BY_CONTEXT verdicts.")
 
 
 def _graph_tab():
@@ -472,14 +693,20 @@ def _pipeline_tab():
     for r in runs[:30]:
         data = load_pipeline_result(r)
         res = data.get("result") or {}
+        legacy = data.get("is_legacy_run")
         with st.container(border=True):
             c1, c2, c3, c4 = st.columns([2.5, 2, 2, 2])
             c1.markdown(f"**{r}**")
+            if legacy:
+                c1.markdown(
+                    "<span style='background:#888;color:white;padding:2px 6px;border-radius:6px;font-size:0.72rem'>Legacy ensemble run</span>",
+                    unsafe_allow_html=True,
+                )
             c1.caption(", ".join(res.get("doc_ids", []))[:80])
             c2.metric("Chunks", res.get("n_chunks", 0))
             c3.metric("Confirmed", res.get("n_flags_confirmed", 0))
             c4.metric("Elapsed (s)", f"{res.get('elapsed_seconds', 0):.1f}")
-            info_popover("stages.parse", label="ℹ pipeline stages")
+            info_popover("stages.detect", label="ℹ pipeline stages")
 
     st.markdown("---")
     st.markdown("#### LLM call inspector")
@@ -500,7 +727,7 @@ def _pipeline_tab():
                     "model": r.get("model"),
                     "ms": r.get("elapsed_ms"),
                     "parse_ok": r.get("parse_ok"),
-                    "error": r.get("error", "") or "",
+                    "error": r.get("error") or "",
                 } for r in rows]
             )
             st.dataframe(df, use_container_width=True, hide_index=True)
@@ -508,9 +735,9 @@ def _pipeline_tab():
                 idx = st.number_input("Inspect call #", min_value=0, max_value=len(rows) - 1, value=0, step=1)
                 call = rows[int(idx)]
                 with st.expander("Prompt"):
-                    st.code(call.get("prompt", "")[:6000], language="text")
+                    st.code((call.get("prompt") or "")[:6000], language="text")
                 with st.expander("Raw response"):
-                    st.code(call.get("response_raw", "")[:6000], language="text")
+                    st.code((call.get("response_raw") or "")[:6000], language="text")
                 with st.expander("Parsed response"):
                     st.json(call.get("response_parsed"))
     else:
@@ -519,12 +746,7 @@ def _pipeline_tab():
 
 def _experiments_tab():
     st.markdown("### Experiments (ablations)")
-    st.caption(
-        "Each ablation toggles one component and re-runs on the current run's data. "
-        "Click (ℹ) for what/why/how/expected. "
-        "Ablation runs are stored under `output/experiments/` — run them from the CLI (`python -m src.experiments --run-all`) "
-        "for the full matrix."
-    )
+    st.caption("Each ablation toggles one component. Run the full suite via `python -m src.experiments --run-all`.")
     abls = explain.get("ablations") or {}
     for k, v in abls.items():
         if not isinstance(v, dict):
@@ -545,15 +767,9 @@ def _about_tab():
     render_method_panel()
 
 
-# ---------------------------------------------------------------------------
-# Main
-# ---------------------------------------------------------------------------
-
-
 def main():
     _header()
     _sidebar()
-
     tabs = st.tabs(
         ["Analyse", "Annotate", "Metrics", "Graph Explorer", "Pipeline", "Experiments", "About this method"]
     )

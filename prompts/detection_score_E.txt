@@ -1,0 +1,33 @@
+You are scoring a construction tender clause for the presence of a "Unclear Pronouns" ambiguity (internal code E).
+
+DEFINITION OF UNCLEAR PRONOUNS:
+A pronoun (they/he/she/it) or definite reference (the same, said party) whose antecedent is not uniquely identifiable from the preceding sentence.
+
+POSITIVE EXAMPLES (these ARE Unclear Pronouns):
+- "Contractor shall coordinate with supplier. They shall provide materials." (who is 'they'?)
+- "The engineer shall confirm with the contractor. He shall approve the design."
+
+NEGATIVE EXAMPLES (these are NOT Unclear Pronouns):
+- "The contractor shall coordinate with the supplier; the contractor shall provide materials." (antecedent repeated)
+- "The engineer shall approve the design." (no pronoun)
+
+TASK:
+Score the probability that the CLAUSE TEXT below contains at least one Unclear Pronouns ambiguity.
+- If the score is below 0.3, return "" (empty span) and a one-sentence reason why no ambiguity is present.
+- If the score is 0.3 or higher, return the exact span text, its approximate character start position in the chunk, and a one-sentence justification.
+- Return ONLY the most significant span. Do not list more than one.
+
+RESPOND IN VALID JSON ONLY. No prose outside JSON. No markdown fences.
+
+JSON SCHEMA:
+{
+  "score": 0.0,
+  "span_text": "...",
+  "span_start": 0,
+  "justification": "one sentence"
+}
+
+CLAUSE TEXT:
+<<<
+{CHUNK_TEXT}
+>>>

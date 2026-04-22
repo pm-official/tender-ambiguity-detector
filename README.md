@@ -1,6 +1,6 @@
 # Tender Ambiguity Detector (TAD)
 
-A self-explaining web application that reads Indian construction tender PDFs, detects **eight categories** of ambiguity, resolves flags against IS-code and intra-tender context using **hybrid vector + knowledge-graph retrieval**, suggests IS-code-grounded rewrites, and explains every step in plain English.
+A self-explaining web application that reads an **Indian construction tender package**, detects **eight categories** of ambiguity, checks whether each flag is resolved by other documents in the same package, and — for genuinely ambiguous clauses — suggests a rewrite grounded in IS codes and CPWD specifications.
 
 Built as an M.Tech thesis project, Civil Engineering, IIT Bombay.
 
@@ -8,30 +8,28 @@ Built as an M.Tech thesis project, Civil Engineering, IIT Bombay.
 
 ## What it does (in one screen)
 
-1. **Parse & chunk** the uploaded tender PDF(s) — clause-aware, ~500-token chunks.
-2. **Detect** ambiguities in 8 categories (F, B, I, A, E, G, H, J) with a **3-pass ensemble** (v1 positive-led, v2 open-ended, v3 adversarial). Spans confirmed only if ≥ 2 of 3 passes agree (IoU ≥ 0.5). A **negative-control probe** may downgrade confidence.
-3. **Resolve** each confirmed flag via **hybrid retrieval**:
-   - F/B/I/A/E/J → vector retrieval over tender + IS-codes (ChromaDB, text-embedding-004).
-   - G/H → knowledge-graph retrieval (documents, clauses, entities, quantities, priority rules).
-   - A second **LLM-as-judge pass** verifies the adjudicator's cited context IDs exist in the retrieved block — fabricated citations are stripped.
-4. **Rewrite** unresolved/partial flags grounded in retrieved IS-code text. A **grounding-verification pass** strips any IS-code reference not present in the grounding block.
+1. **Upload the whole tender package** — GCC, NIT, Specifications, BOQ, Drawings, Addenda. Tag each document and pick which ones to analyse.
+2. **Parse & chunk** — clause-aware, ~500-token chunks; the whole package is indexed for Stage-2 retrieval.
+3. **Detect (Stage 1)** — dual scoring: a **keyword score** from the category lexicon plus a single-call **LLM score**. Combined above the threshold → flagged. (The legacy 3-pass ensemble is preserved behind a feature flag for ablation.)
+4. **Package context resolution (Stage 2)** — retrieve top-k context from across the whole tender package and decide **Confirmed Ambiguous** / **Resolved by Context** / **Partially Resolved**. An LLM-as-judge pass verifies every cited context id.
+5. **Standards-grounded rewrite (Stage 3)** — Confirmed flags get a rewrite grounded in IS codes and CPWD specifications; a grounding-verification pass strips any fabricated clause number.
 
 Every number, badge, and stage in the UI has an **(ℹ)** icon that opens a "what / why / how / benchmark / worked example" card drawn from `app/explanations/*.yaml`. The app is designed to be understandable without a walkthrough.
 
 ---
 
-## The eight categories
+## The eight categories (display names; letter codes are internal)
 
-| | Name | Short definition |
+| Code | Display name | Short definition |
 |---|---|---|
-| F | Undefined technical terms | "suitable aggregate", "approved make" |
-| B | Vague qualitative adjectives | "adequate drainage", "good quality sand" |
-| I | Missing reference targets | "as per the relevant IS code" |
-| A | Lexical ambiguity | "access" (physical vs digital), "fair" |
-| E | Anaphoric ambiguity | "They shall provide materials." |
-| G | Cross-document priority conflict | priority rule fails to resolve a disagreement |
-| H | Cross-document numerical inconsistency | same quantity, different values |
-| J | Incomplete specifications | "apply primer coat" — type/thickness/cure missing |
+| F | **Undefined Terms** | "suitable aggregate", "approved make" |
+| B | **Vague Qualifiers** | "adequate drainage", "good quality sand" |
+| I | **Unnamed References** | "as per the relevant IS code" |
+| A | **Word-Level Ambiguity** | "access" (physical vs rights), "fair" |
+| E | **Unclear Pronouns** | "They shall provide materials." |
+| G | **Priority Conflicts** | priority rule fails to resolve a disagreement |
+| H | **Numerical Inconsistencies** | same quantity, different values |
+| J | **Incomplete Specifications** | "apply primer coat" — type/thickness/cure missing |
 
 Full definitions with positive and negative examples live in `app/explanations/categories.yaml`.
 

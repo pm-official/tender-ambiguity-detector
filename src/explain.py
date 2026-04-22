@@ -23,6 +23,8 @@ _FILES = [
     "graph_legend.yaml",
     "ablations.yaml",
     "annotation_protocol.yaml",
+    "document_types.yaml",  # Prompt-4
+    "scoring.yaml",  # Prompt-4
 ]
 
 
@@ -60,6 +62,42 @@ def get(path: str, default: Any | None = None) -> Any:
                 return default
             return None
     return node
+
+
+def category_display(category_id: str) -> str:
+    """Return the intuitive display name for a category letter code (F/B/I/A/E/G/H/J).
+
+    Falls back to the letter code if the YAML doesn't have a display_name. Used everywhere
+    user-facing text is rendered; letter codes stay as internal IDs in schemas and CSVs.
+    """
+    e = get(f"categories.{category_id}")
+    if isinstance(e, dict):
+        name = e.get("display_name") or e.get("title")
+        if name:
+            return str(name)
+    return category_id
+
+
+def category_display_with_code(category_id: str) -> str:
+    """'Undefined Terms (F)' — use only in tooltips/power-user surfaces, never as a chip label."""
+    return f"{category_display(category_id)} ({category_id})"
+
+
+def verdict_display(verdict: str) -> str:
+    """Map internal verdict enum / new vocabulary to a user-facing label."""
+    e = get(f"verdicts.{verdict}")
+    if isinstance(e, dict):
+        name = e.get("display_name") or e.get("title")
+        if name:
+            return str(name)
+    legacy = {
+        "RESOLVED": "Resolved by Context",
+        "RESOLVED_BY_CONTEXT": "Resolved by Context",
+        "PARTIALLY_RESOLVED": "Partially Resolved",
+        "UNRESOLVED": "Confirmed Ambiguous",
+        "CONFIRMED_AMBIGUOUS": "Confirmed Ambiguous",
+    }
+    return legacy.get(verdict, verdict)
 
 
 def explain_or_stub(path: str) -> dict[str, Any]:

@@ -1,0 +1,37 @@
+You are scoring a construction tender clause for the presence of a "Vague Qualifiers" ambiguity (internal code B).
+
+DEFINITION OF VAGUE QUALIFIERS:
+An evaluative adjective used as an acceptance criterion without a quantifiable threshold, modifying a testable noun.
+
+POSITIVE EXAMPLES (these ARE Vague Qualifiers):
+- "adequate drainage" (no flow rate)
+- "reasonable tolerance" (no numeric limit)
+- "good quality sand" (no grading reference)
+- "satisfactory workmanship" (no criterion)
+
+NEGATIVE EXAMPLES (these are NOT Vague Qualifiers):
+- "drainage capacity ≥ 50 l/s/ha"
+- "tolerance ±5 mm per IS 1200"
+- "sand conforming to IS 383"
+- "adequate as per IS xxxx" (anchored to standard)
+
+TASK:
+Score the probability that the CLAUSE TEXT below contains at least one Vague Qualifiers ambiguity.
+- If the score is below 0.3, return "" (empty span) and a one-sentence reason why no ambiguity is present.
+- If the score is 0.3 or higher, return the exact span text, its approximate character start position in the chunk, and a one-sentence justification.
+- Return ONLY the most significant span. Do not list more than one.
+
+RESPOND IN VALID JSON ONLY. No prose outside JSON. No markdown fences.
+
+JSON SCHEMA:
+{
+  "score": 0.0,
+  "span_text": "...",
+  "span_start": 0,
+  "justification": "one sentence"
+}
+
+CLAUSE TEXT:
+<<<
+{CHUNK_TEXT}
+>>>

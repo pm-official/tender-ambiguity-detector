@@ -1,0 +1,13 @@
+# Unclear Pronouns — pronouns / definite references whose antecedent is not unique.
+entries:
+  - {term: "They shall", weight: 0.85, requires_context: "adj_then_noun"}
+  - {term: "He shall", weight: 0.8, requires_context: "adj_then_noun"}
+  - {term: "She shall", weight: 0.8, requires_context: "adj_then_noun"}
+  - {term: "It shall", weight: 0.7}
+  - {term: "they will", weight: 0.75}
+  - {term: "he will", weight: 0.7}
+  - {term: "same shall", weight: 0.7}
+  - {term: "the party", weight: 0.6}
+  - {term: "the other party", weight: 0.7}
+  - {term: "said party", weight: 0.75}
+  - {term: "the same", weight: 0.5}

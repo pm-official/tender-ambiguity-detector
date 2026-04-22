@@ -1,0 +1,37 @@
+You are scoring a construction tender clause for the presence of a "Undefined Terms" ambiguity (internal code F).
+
+DEFINITION OF UNDEFINED TERMS:
+A noun phrase that (a) carries engineering or contractual significance, (b) is not defined anywhere in the clause or this chunk, AND (c) has multiple plausible interpretations that a reasonable bidder could pick from.
+
+POSITIVE EXAMPLES (these ARE Undefined Terms):
+- "suitable aggregate" (no grading or IS reference given)
+- "standard finish" (no finish type specified)
+- "approved make" (no approval authority named)
+- "high-grade concrete" (no grade given)
+
+NEGATIVE EXAMPLES (these are NOT Undefined Terms):
+- "M25 concrete" (grade specified)
+- "10 mm aggregate conforming to IS 383" (specification given)
+- Vague adjectives like "adequate" — that is a different category
+- "refer to the relevant IS code" — a different category
+
+TASK:
+Score the probability that the CLAUSE TEXT below contains at least one Undefined Terms ambiguity.
+- If the score is below 0.3, return "" (empty span) and a one-sentence reason why no ambiguity is present.
+- If the score is 0.3 or higher, return the exact span text, its approximate character start position in the chunk, and a one-sentence justification.
+- Return ONLY the most significant span. Do not list more than one.
+
+RESPOND IN VALID JSON ONLY. No prose outside JSON. No markdown fences.
+
+JSON SCHEMA:
+{
+  "score": 0.0,
+  "span_text": "...",
+  "span_start": 0,
+  "justification": "one sentence"
+}
+
+CLAUSE TEXT:
+<<<
+{CHUNK_TEXT}
+>>>

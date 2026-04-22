@@ -1,0 +1,35 @@
+You are scoring a construction tender clause for the presence of a "Word-Level Ambiguity" ambiguity (internal code A).
+
+DEFINITION OF WORD-LEVEL AMBIGUITY:
+A construction-domain word used where multiple established meanings fit the context and no local cue disambiguates.
+
+POSITIVE EXAMPLES (these ARE Word-Level Ambiguity):
+- "Contractor shall have access to site." (physical vs rights)
+- "fair finish" (aesthetic vs equitable)
+- "block work" (masonry unit vs prohibition)
+
+NEGATIVE EXAMPLES (these are NOT Word-Level Ambiguity):
+- "Contractor shall have physical access to the site between 06:00 and 18:00."
+- "fair-face concrete per IS 10262"
+- "hollow concrete block 200x200x400 per IS 2185"
+
+TASK:
+Score the probability that the CLAUSE TEXT below contains at least one Word-Level Ambiguity ambiguity.
+- If the score is below 0.3, return "" (empty span) and a one-sentence reason why no ambiguity is present.
+- If the score is 0.3 or higher, return the exact span text, its approximate character start position in the chunk, and a one-sentence justification.
+- Return ONLY the most significant span. Do not list more than one.
+
+RESPOND IN VALID JSON ONLY. No prose outside JSON. No markdown fences.
+
+JSON SCHEMA:
+{
+  "score": 0.0,
+  "span_text": "...",
+  "span_start": 0,
+  "justification": "one sentence"
+}
+
+CLAUSE TEXT:
+<<<
+{CHUNK_TEXT}
+>>>

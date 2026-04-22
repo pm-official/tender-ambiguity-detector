@@ -1,4 +1,4 @@
-"""Live pipeline progress tracker with info icons on every stage."""
+"""Live pipeline progress tracker (Prompt-4 four-stage)."""
 from __future__ import annotations
 
 import streamlit as st
@@ -8,16 +8,14 @@ from .info_icon import info_popover
 STAGES = [
     ("parse", "Parse PDFs"),
     ("chunk", "Clause-aware chunking"),
-    ("embed", "Embed chunks (text-embedding-004)"),
+    ("embed", "Index tender package"),
     ("graph", "Build knowledge graph"),
-    ("detect_v1", "Detection pass v1 (positive-led)"),
-    ("detect_v2", "Detection pass v2 (open-ended)"),
-    ("detect_v3", "Detection pass v3 (adversarial)"),
-    ("merge_probe", "Merge + negative-control probe (G1+G2)"),
-    ("resolve", "Hybrid resolution"),
-    ("judge_citations", "LLM-as-judge citation check (G3)"),
-    ("rewrite", "IS-code-grounded rewrite"),
+    ("detect", "Dual-scoring detection (Stage 1)"),
+    ("resolve", "Package context resolution (Stage 2)"),
+    ("judge_citations", "Citation verification (G3)"),
+    ("rewrite", "Standards-grounded rewrite (Stage 3)"),
     ("verify_grounding", "Grounding verification (G4)"),
+    ("done", "Finalize outputs"),
 ]
 
 

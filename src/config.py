@@ -62,9 +62,27 @@ TOP_K_ISCODE: int = 5
 CHUNK_MAX_TOKENS: int = 500
 CHUNK_OVERLAP: int = 50
 
-# Detection ensemble (guardrail G1)
-DETECTION_AGREEMENT_THRESHOLD: int = 2  # out of 3 passes
+# Detection — dual-scoring path (Prompt-4 methodology)
+KEYWORD_SCORE_WEIGHT_ALPHA: float = 0.3  # combined = α·keyword + (1-α)·llm
+DETECTION_THRESHOLD: float = 0.5  # combined-score threshold (default, per-category via calibration)
+
+# Detection ensemble (LEGACY / guardrail G1) — preserved for ablation behind USE_LEGACY_ENSEMBLE.
+USE_LEGACY_ENSEMBLE: bool = False  # flip True to run the Prompt-3 three-pass detector
+DETECTION_AGREEMENT_THRESHOLD: int = 2  # out of 3 passes — deprecated in default path; kept for the ablation
 SPAN_IOU_THRESHOLD: float = 0.5
+
+# Tender package (Prompt-4)
+PACKAGE_DOCUMENT_TYPES: list[str] = [
+    "GCC",
+    "Additional Conditions",
+    "NIT",
+    "Technical Specifications",
+    "BOQ",
+    "Conditions of Contract",
+    "Addendum",
+    "Drawing",
+    "Other",
+]
 
 # Concurrency / retries
 MAX_CONCURRENT_LLM_CALLS: int = 4
@@ -134,10 +152,14 @@ def dump() -> Dict[str, Any]:
         "TOP_K_ISCODE": TOP_K_ISCODE,
         "CHUNK_MAX_TOKENS": CHUNK_MAX_TOKENS,
         "CHUNK_OVERLAP": CHUNK_OVERLAP,
+        "KEYWORD_SCORE_WEIGHT_ALPHA": KEYWORD_SCORE_WEIGHT_ALPHA,
+        "DETECTION_THRESHOLD": DETECTION_THRESHOLD,
+        "USE_LEGACY_ENSEMBLE": USE_LEGACY_ENSEMBLE,
         "DETECTION_AGREEMENT_THRESHOLD": DETECTION_AGREEMENT_THRESHOLD,
         "SPAN_IOU_THRESHOLD": SPAN_IOU_THRESHOLD,
         "DETECTION_CONFIDENCE_THRESHOLD": DETECTION_CONFIDENCE_THRESHOLD,
         "RANDOM_SEED": RANDOM_SEED,
         "ENABLED_CATEGORIES": ENABLED_CATEGORIES,
         "GRAPH_CATEGORIES": GRAPH_CATEGORIES,
+        "PACKAGE_DOCUMENT_TYPES": PACKAGE_DOCUMENT_TYPES,
     }

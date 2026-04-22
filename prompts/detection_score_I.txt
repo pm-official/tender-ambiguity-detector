@@ -1,0 +1,37 @@
+You are scoring a construction tender clause for the presence of a "Unnamed References" ambiguity (internal code I).
+
+DEFINITION OF UNNAMED REFERENCES:
+A reference to a document, clause, schedule, drawing, or standard where the target itself is not identified by name or number.
+
+POSITIVE EXAMPLES (these ARE Unnamed References):
+- "as per the relevant IS code"
+- "refer to the attached drawing"
+- "per the schedule"
+- "in accordance with the applicable standard"
+
+NEGATIVE EXAMPLES (these are NOT Unnamed References):
+- "as per IS 456:2000 Cl. 8.2"
+- "refer to drawing DWG-ARCH-04"
+- "per Schedule A, Sheet 3"
+- "conforming to IS 383:2016"
+
+TASK:
+Score the probability that the CLAUSE TEXT below contains at least one Unnamed References ambiguity.
+- If the score is below 0.3, return "" (empty span) and a one-sentence reason why no ambiguity is present.
+- If the score is 0.3 or higher, return the exact span text, its approximate character start position in the chunk, and a one-sentence justification.
+- Return ONLY the most significant span. Do not list more than one.
+
+RESPOND IN VALID JSON ONLY. No prose outside JSON. No markdown fences.
+
+JSON SCHEMA:
+{
+  "score": 0.0,
+  "span_text": "...",
+  "span_start": 0,
+  "justification": "one sentence"
+}
+
+CLAUSE TEXT:
+<<<
+{CHUNK_TEXT}
+>>>

@@ -1,0 +1,20 @@
+# Unnamed References — references to a document/clause/drawing/standard with no target named.
+entries:
+  - {term: "relevant IS code", weight: 0.95}
+  - {term: "relevant code", weight: 0.9}
+  - {term: "relevant standard", weight: 0.9}
+  - {term: "applicable IS code", weight: 0.9}
+  - {term: "applicable standard", weight: 0.85}
+  - {term: "attached drawing", weight: 0.85}
+  - {term: "attached drawings", weight: 0.85}
+  - {term: "the schedule", weight: 0.7}
+  - {term: "the specifications", weight: 0.6}
+  - {term: "the drawings", weight: 0.5}
+  - {term: "relevant specification", weight: 0.8}
+  - {term: "relevant specifications", weight: 0.8}
+  - {term: "appropriate IS code", weight: 0.9}
+  - {term: "latest schedule", weight: 0.75}
+  - {term: "latest standard", weight: 0.8}
+  - {term: "approved drawings", weight: 0.65}
+  - {term: "approved drawing", weight: 0.65}
+  - {term: "as per BIS", weight: 0.4}

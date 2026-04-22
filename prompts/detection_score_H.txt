@@ -1,0 +1,33 @@
+You are scoring a construction tender clause for the presence of a "Numerical Inconsistencies" ambiguity (internal code H).
+
+DEFINITION OF NUMERICAL INCONSISTENCIES:
+The same named quantity appears with different values in different parts of the tender package, with no reconciliation clause.
+
+POSITIVE EXAMPLES (these ARE Numerical Inconsistencies):
+- "Concrete 1200 cu.m in BOQ; 1500 cu.m in Specifications"
+- "Total cost Rs 4.5 crore (Section 1); Rs 4.8 crore (Section 4)"
+
+NEGATIVE EXAMPLES (these are NOT Numerical Inconsistencies):
+- Same quantity cited identically in both documents.
+- A figure that appears only once in the package.
+
+TASK:
+Score the probability that the CLAUSE TEXT below contains at least one Numerical Inconsistencies ambiguity.
+- If the score is below 0.3, return "" (empty span) and a one-sentence reason why no ambiguity is present.
+- If the score is 0.3 or higher, return the exact span text, its approximate character start position in the chunk, and a one-sentence justification.
+- Return ONLY the most significant span. Do not list more than one.
+
+RESPOND IN VALID JSON ONLY. No prose outside JSON. No markdown fences.
+
+JSON SCHEMA:
+{
+  "score": 0.0,
+  "span_text": "...",
+  "span_start": 0,
+  "justification": "one sentence"
+}
+
+CLAUSE TEXT:
+<<<
+{CHUNK_TEXT}
+>>>

@@ -54,6 +54,20 @@ mean_confidence:
   how: "mean of confidences across agreeing passes; if the negative-control probe strongly disagrees, subtract 0.2."
   benchmark: "Interpret with agreement_rate. A 3/3 cluster at 0.55 is often realer than a 1/3 cluster at 0.90."
   example: "Two agreeing passes @ 0.82 and 0.75; probe fine → mean_confidence = 0.785."
+keyword_vs_llm_contribution:
+  title: "Keyword vs LLM contribution"
+  what: "Per category, the fraction of confirmed flags where the keyword signal dominated (α·keyword > (1-α)·llm) versus where the LLM signal dominated."
+  why: "Tells you whether the lexicon is carrying its weight. 100% LLM-dominant means the lexicon is probably under-curated."
+  how: "For every confirmed flag, compare α·keyword vs (1-α)·llm; tally into Keyword-led / LLM-led buckets per category."
+  benchmark: "Healthy split is roughly 20-40% keyword-led for F, B, J, I; near 0% for G, H (graph-routed)."
+  example: "Vague Qualifiers: 35% keyword-led, 65% LLM-led — lexicon pulling reasonable weight."
+resolved_by_context_rate:
+  title: "Resolved-by-context rate"
+  what: "Share of Stage-1 confirmed flags that Stage 2 marked Resolved by Context."
+  why: "A healthy positive rate means Stage 2 is doing real work. A zero rate means Stage 2 is permissive (everything gets Confirmed) or the package is internally inconsistent."
+  how: "resolved_by_context / (confirmed at Stage 1). The UI breaks it out per category."
+  benchmark: "25-45% typical for well-prepared packages."
+  example: "50 flags at Stage 1; 17 resolved by context → 34% rate."
 retrieval_score:
   title: "Retrieval similarity score"
   what: "Cosine similarity between the query embedding and the retrieved chunk embedding."

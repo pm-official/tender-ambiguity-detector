@@ -1,0 +1,13 @@
+# Word-Level Ambiguity — polysemous construction terms.
+entries:
+  - {term: "fair", weight: 0.7}
+  - {term: "fair-face", weight: 0.7}
+  - {term: "access", weight: 0.6}
+  - {term: "block", weight: 0.55}
+  - {term: "level", weight: 0.55}
+  - {term: "grade", weight: 0.55}
+  - {term: "course", weight: 0.55}
+  - {term: "work", weight: 0.35}
+  - {term: "face", weight: 0.5}
+  - {term: "coat", weight: 0.55}
+  - {term: "rate", weight: 0.4}

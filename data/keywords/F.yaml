@@ -1,0 +1,20 @@
+# Undefined Terms — engineering noun phrases without a definition.
+entries:
+  - {term: "suitable aggregate", weight: 0.9}
+  - {term: "suitable material", weight: 0.8}
+  - {term: "approved make", weight: 0.9}
+  - {term: "approved brand", weight: 0.8}
+  - {term: "standard finish", weight: 0.85}
+  - {term: "standard quality", weight: 0.75}
+  - {term: "proper compaction", weight: 0.7}
+  - {term: "proper curing", weight: 0.7}
+  - {term: "high-grade concrete", weight: 0.8}
+  - {term: "best quality", weight: 0.75}
+  - {term: "good finish", weight: 0.7}
+  - {term: "approved type", weight: 0.8}
+  - {term: "approved manufacturer", weight: 0.8}
+  - {term: "approved quality", weight: 0.75}
+  - {term: "fair finish", weight: 0.8}
+  - {term: "requisite material", weight: 0.7}
+  - {term: "suitable thickness", weight: 0.7}
+  - {term: "appropriate grade", weight: 0.7}

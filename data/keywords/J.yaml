@@ -1,0 +1,17 @@
+# Incomplete Specifications — procedural clauses that omit parameters.
+entries:
+  - {term: "apply primer", weight: 0.9, forbid_context: "numeric"}
+  - {term: "apply primer coat", weight: 0.95, forbid_context: "numeric"}
+  - {term: "seal all joints", weight: 0.85, forbid_context: "numeric"}
+  - {term: "seal the joints", weight: 0.85, forbid_context: "numeric"}
+  - {term: "waterproofing", weight: 0.65, forbid_context: "numeric"}
+  - {term: "cure adequately", weight: 0.8}
+  - {term: "provide suitable", weight: 0.8}
+  - {term: "use approved", weight: 0.7, forbid_context: "numeric"}
+  - {term: "as directed by engineer", weight: 0.8}
+  - {term: "as directed by the engineer", weight: 0.8}
+  - {term: "compact suitably", weight: 0.8}
+  - {term: "treat with", weight: 0.5, forbid_context: "numeric"}
+  - {term: "sealant of approved type", weight: 0.95}
+  - {term: "sealant of suitable type", weight: 0.9}
+  - {term: "paint with", weight: 0.5, forbid_context: "numeric"}
