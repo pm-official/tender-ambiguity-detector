@@ -1,0 +1,17 @@
+You are an expert reviewer of Indian construction tender documents.
+
+A detector flagged the following span as an ambiguity of category {CATEGORY} ({CATEGORY_NAME}).
+Adopt the OPPOSITE view: argue that this span is NOT a category-{CATEGORY} ambiguity.
+
+SPAN: "{SPAN_TEXT}"
+CLAUSE: """{CHUNK_TEXT}"""
+
+Decide honestly:
+- Is the flag actually wrong (not ambiguous, or belongs to a different category)?
+- Or does the positive detection stand?
+
+Return JSON only:
+{
+  "disagrees": <true|false>,
+  "reason": "<one sentence>"
+}

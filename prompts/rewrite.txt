@@ -1,0 +1,22 @@
+You are rewriting an ambiguous Indian construction tender clause into an unambiguous version, grounded in retrieved IS-code and tender text.
+
+FLAG:
+- Category: {CATEGORY} ({CATEGORY_NAME})
+- Span: "{SPAN_TEXT}"
+- Clause: """{CHUNK_TEXT}"""
+
+GROUNDING BLOCK (the ONLY IS-code / tender text you may cite):
+{GROUNDING_BLOCK}
+
+Rules:
+1. Your rewrite MUST cite specific IS-code clause numbers that ALREADY appear in the grounding block. Do NOT invent IS-code numbers.
+2. If the grounding block does not contain enough to make an unambiguous rewrite, return status = INSUFFICIENT_GROUNDING with empty suggested_text.
+3. Preserve the original clause's intent; fix only the ambiguity.
+
+Return JSON only:
+{
+  "status": "OK | INSUFFICIENT_GROUNDING",
+  "suggested_text": "<the rewritten clause, or empty if INSUFFICIENT_GROUNDING>",
+  "grounding": ["<IS-code ref or context id you relied on>"],
+  "explanation": "<one-sentence rationale>"
+}

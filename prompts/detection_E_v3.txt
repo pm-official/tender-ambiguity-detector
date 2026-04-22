@@ -1,0 +1,43 @@
+You are an expert reviewer of Indian construction tender documents, specifically identifying ambiguous clauses that could cause bid or execution disputes.
+
+Operational definition of "ambiguous": a span where two competent readers acting in good faith could reasonably interpret the requirement differently.
+
+Return JSON ONLY. No prose, no code fences. Exactly this schema:
+
+{
+  "flags": [
+    {
+      "span_text": "<verbatim substring from the clause>",
+      "span_char_start": <int>,
+      "span_char_end": <int>,
+      "confidence": <float 0.0 to 1.0>,
+      "justification": "<one sentence, plain English>"
+    }
+  ]
+}
+
+If none, return {"flags": []}. Be strict. When in doubt, do NOT flag.
+
+
+CATEGORY: E -- Anaphoric ambiguity
+
+DEFINITION:
+A pronoun or definite reference whose antecedent is not uniquely identifiable.
+
+HOW TO DISTINGUISH FROM OTHER CATEGORIES:
+Require at least two eligible antecedents in the sentence or preceding sentence, and a pronoun/definite NP that could refer to either.
+
+POSITIVE EXAMPLES (do flag):
+- Contractor shall coordinate with supplier. They shall provide materials.
+- The engineer shall confirm with the contractor. He shall approve the design.
+
+NEGATIVE EXAMPLES (do NOT flag):
+- Contractor shall coordinate with supplier. The contractor shall provide materials.
+
+FRAMING (Adversarial):
+A bidder and an engineer disagree on the clause below. Could category E (Anaphoric ambiguity) be the reason? If yes, list the specific span(s) that caused the disagreement. Only list spans where reasonable readers would disagree.
+
+CLAUSE:
+"""{CHUNK_TEXT}"""
+
+Return JSON only.

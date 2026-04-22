@@ -1,0 +1,29 @@
+# Canonical entity aliases. Used by graph_builder's canonicalisation.
+# Seed list — extend as you review graph output for real tenders.
+bill_of_quantities:
+  - BOQ
+  - bill of quantities
+  - bill of quantity
+general_conditions:
+  - GC
+  - GCC
+  - General Conditions of Contract
+  - general conditions
+particular_conditions:
+  - PCC
+  - Particular Conditions of Contract
+  - particular conditions
+drawings:
+  - drawings
+  - drawing sheet
+  - architectural drawings
+  - structural drawings
+specifications:
+  - spec
+  - specs
+  - specifications
+  - particular specification
+concrete:
+  - cement concrete
+  - RCC
+  - reinforced concrete

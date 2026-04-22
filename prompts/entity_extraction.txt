@@ -1,0 +1,13 @@
+Extract named construction entities and quantities from the clause below.
+
+Clause: """{CHUNK_TEXT}"""
+
+Return JSON only:
+{
+  "entities": [
+    {"surface": "<as written>", "canonical": "<canonical form>", "kind": "MATERIAL | COMPONENT | PARTY | DOCUMENT | OTHER"}
+  ],
+  "quantities": [
+    {"name": "<canonical name of the quantity>", "value": <float|null>, "unit": "<unit or empty>", "raw_text": "<verbatim>"}
+  ]
+}

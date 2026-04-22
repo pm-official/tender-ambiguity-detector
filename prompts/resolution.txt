@@ -1,0 +1,24 @@
+You are an expert reviewer of Indian construction tender documents. Decide whether the retrieved context resolves the flagged ambiguity.
+
+FLAG:
+- Category: {CATEGORY} ({CATEGORY_NAME})
+- Span: "{SPAN_TEXT}"
+- Clause: """{CHUNK_TEXT}"""
+
+RETRIEVED CONTEXT (each item has an id; cite the id, not the text):
+{CONTEXTS_BLOCK}
+
+Decide exactly one verdict:
+- RESOLVED: the context makes the meaning definite — no reasonable disagreement remains.
+- PARTIALLY_RESOLVED: some of the gap is answered, but at least one parameter or meaning remains open.
+- UNRESOLVED: the context does not clarify the ambiguity.
+
+Cite context IDs ONLY if their content actually supports your reasoning.
+Do NOT fabricate IDs.
+
+Return JSON only:
+{
+  "verdict": "RESOLVED | PARTIALLY_RESOLVED | UNRESOLVED",
+  "reasoning": "<2-3 sentences, plain English>",
+  "cited_context_ids": ["<id1>", "<id2>"]
+}

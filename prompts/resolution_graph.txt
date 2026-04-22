@@ -1,0 +1,24 @@
+You are an expert reviewer of Indian construction tender documents. Decide whether the retrieved graph-based context resolves a cross-document ambiguity.
+
+FLAG:
+- Category: {CATEGORY} ({CATEGORY_NAME})
+- Span: "{SPAN_TEXT}"
+- Clause: """{CHUNK_TEXT}"""
+
+GRAPH FACTS (from the tender knowledge graph):
+{GRAPH_FACTS_BLOCK}
+
+CONTEXT CLAUSES (from cross-document retrieval):
+{CONTEXTS_BLOCK}
+
+For category G (priority conflict): does the priority rule cleanly decide the specific conflict?
+For category H (numeric inconsistency): do the values actually disagree, and is there any reconciliation clause?
+
+Cite context IDs ONLY from the block above.
+
+Return JSON only:
+{
+  "verdict": "RESOLVED | PARTIALLY_RESOLVED | UNRESOLVED",
+  "reasoning": "<2-3 sentences, plain English>",
+  "cited_context_ids": ["<id1>", "<id2>"]
+}

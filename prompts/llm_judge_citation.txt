@@ -1,0 +1,21 @@
+You are verifying whether an adjudicator's citations are faithful.
+
+ADJUDICATOR VERDICT: {VERDICT}
+ADJUDICATOR REASONING: {REASONING}
+CITED CONTEXT IDS: {CITED_IDS}
+
+RETRIEVED CONTEXT BLOCK (canonical list of IDs + their text):
+{CONTEXTS_BLOCK}
+
+For EACH cited ID, decide whether:
+- The ID exists in the block, AND
+- The ID's text substantively supports the reasoning.
+
+Return JSON only:
+{
+  "valid_ids": ["<ids kept>"],
+  "stripped_ids": ["<ids not in block OR not supporting reasoning>"],
+  "needs_re_adjudication": <true|false>
+}
+
+Set needs_re_adjudication=true only if stripping leaves the reasoning unsupported.

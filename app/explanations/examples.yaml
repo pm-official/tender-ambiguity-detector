@@ -1,0 +1,53 @@
+F:
+  positive:
+    - "Contractor shall use suitable aggregate for the subbase."
+    - "Provide standard finish on all visible concrete surfaces."
+    - "Pipes shall be of approved make."
+  negative:
+    - "Concrete of grade M25 shall be used."
+    - "Finish shall conform to IS 8989."
+B:
+  positive:
+    - "Provide adequate drainage around the foundation."
+    - "Maintain reasonable tolerance on all dimensions."
+    - "Use good quality sand for plaster."
+  negative:
+    - "Drainage capacity shall be at least 50 l/s/ha."
+    - "Tolerance on length ±5 mm per IS 1200."
+I:
+  positive:
+    - "As per the relevant IS code."
+    - "Refer to the attached drawing for details."
+    - "In accordance with the latest schedule of rates."
+  negative:
+    - "As per IS 456:2000 Cl. 8.2."
+    - "Refer to drawing DWG-ARCH-04."
+A:
+  positive:
+    - "Contractor shall have access to site."
+    - "Fair quality block shall be used."
+  negative:
+    - "Contractor shall be granted physical access to the site between 06:00–18:00."
+    - "Fair-face concrete per IS 10262."
+E:
+  positive:
+    - "Engineer shall confirm with the contractor. He shall approve the design."
+    - "Contractor shall coordinate with supplier. They shall provide materials."
+  negative:
+    - "Engineer shall confirm with the contractor; the engineer shall approve the design."
+G:
+  positive:
+    - "In case of conflict, the BOQ shall prevail. (BOQ silent on this item; drawings show 2 values)"
+  negative:
+    - "Drawings govern on geometry; BOQ governs on pricing (and they agree on this item)."
+H:
+  positive:
+    - "Concrete quantity: 1200 m³ in BOQ; 1500 m³ in Specifications; no reconciliation clause."
+  negative:
+    - "Concrete quantity 1200 m³ in both BOQ and Specifications."
+J:
+  positive:
+    - "Apply primer coat on the cleaned surface."
+    - "Seal all joints with approved sealant."
+  negative:
+    - "Apply zinc chromate primer (IS 104), 40 µm DFT, 4-hour cure time."

@@ -1,0 +1,10 @@
+Read the clause below and list ANY ambiguities you find, assigning each to one of the 8 categories (F,B,I,A,E,G,H,J) or to NONE.
+
+Clause: """{CHUNK_TEXT}"""
+
+Return JSON only:
+{
+  "items": [
+    {"category": "<letter or NONE>", "span_text": "...", "reason": "..."}
+  ]
+}

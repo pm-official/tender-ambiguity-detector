@@ -1,0 +1,36 @@
+nodes:
+  DOCUMENT:
+    what: "A tender document (BOQ, GC, Specifications, Drawings index, etc.)."
+    why: "Top-level container the priority rules refer to."
+  CLAUSE:
+    what: "A clause or sub-clause within a document, carrying text and a clause hint."
+    why: "Granular anchor for cross-references."
+  ENTITY:
+    what: "A named construction entity (material, component, party) canonicalised across surface forms."
+    why: "Enables cross-document linking for H and G."
+  QUANTITY:
+    what: "A named quantity (e.g. 'concrete volume') with value and unit."
+    why: "Compared across chunks to detect H (numeric inconsistency)."
+  PRIORITY_RULE:
+    what: "A clause asserting precedence between two documents."
+    why: "Drives the G-conflict check."
+edges:
+  HAS_CLAUSE:
+    what: "DOCUMENT → CLAUSE."
+    why: "Containment."
+  MENTIONS:
+    what: "CLAUSE → ENTITY / CLAUSE → QUANTITY."
+    why: "Named-entity occurrences drive conflict search."
+  PRIORITISES:
+    what: "PRIORITY_RULE → DOCUMENT (dominant) / PRIORITY_RULE → DOCUMENT (subordinate)."
+    why: "Encodes the precedence relationship."
+  INCONSISTENT_WITH:
+    what: "QUANTITY → QUANTITY (dashed red)."
+    why: "Post-hoc edge drawn between quantities with same canonical name but different values."
+colors:
+  DOCUMENT: "#1F4E79"
+  CLAUSE: "#4B86B4"
+  ENTITY: "#8AB17D"
+  QUANTITY: "#E9A23B"
+  PRIORITY_RULE: "#B05A7A"
+  INCONSISTENT_WITH: "#CC2936"

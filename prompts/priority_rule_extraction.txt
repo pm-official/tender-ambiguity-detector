@@ -1,0 +1,14 @@
+Identify any priority / precedence rule in the clause below.
+
+Clause: """{CHUNK_TEXT}"""
+
+A priority rule says which document governs when documents disagree (e.g. "BOQ shall prevail over drawings", "In case of conflict, General Conditions shall govern").
+
+Return JSON only:
+{
+  "rules": [
+    {"dominant_doc": "<name>", "subordinate_doc": "<name>", "raw_text": "<verbatim excerpt>"}
+  ]
+}
+
+If none, return {"rules": []}.

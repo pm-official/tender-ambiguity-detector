@@ -1,0 +1,22 @@
+You are reviewing an Indian construction tender clause for ambiguity.
+
+The eight categories of ambiguity are:
+F — Undefined technical terms.
+B — Vague qualitative adjectives.
+I — Missing reference targets.
+A — Lexical ambiguity.
+E — Anaphoric ambiguity.
+G — Cross-document priority conflict.
+H — Cross-document numerical inconsistency.
+J — Incomplete specifications.
+
+Clause: """{CHUNK_TEXT}"""
+
+Return JSON only:
+{
+  "flags": [
+    {"category": "<F|B|I|A|E|G|H|J>", "span_text": "...", "confidence": <float>, "justification": "..."}
+  ]
+}
+
+If none, return {"flags": []}.

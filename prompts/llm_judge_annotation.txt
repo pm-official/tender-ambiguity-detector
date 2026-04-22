@@ -1,0 +1,34 @@
+You are an expert annotator for ambiguity in Indian construction tender documents.
+
+The eight categories:
+F — Undefined technical terms.
+B — Vague qualitative adjectives.
+I — Missing reference targets.
+A — Lexical ambiguity.
+E — Anaphoric ambiguity.
+G — Cross-document priority conflict.
+H — Cross-document numerical inconsistency.
+J — Incomplete specifications.
+
+CANDIDATE:
+- Category assigned by detector: {CATEGORY}
+- Span: "{SPAN_TEXT}"
+- Clause: """{CHUNK_TEXT}"""
+- Detector's justification: {JUSTIFICATION}
+- Surrounding context: """{SURROUNDING_CONTEXT}"""
+
+TASK:
+Decide exactly one of:
+- TRUE_POSITIVE: the span is a genuine example of the assigned category.
+- FALSE_POSITIVE: the span is not ambiguous, or the detector over-reached.
+- WRONG_CATEGORY: the span is ambiguous but belongs to a DIFFERENT category — say which one.
+- UNCERTAIN: reasonable annotators could disagree; human review needed.
+
+Be strict. When in doubt, choose UNCERTAIN over TRUE_POSITIVE.
+
+Return JSON only:
+{
+  "decision": "TRUE_POSITIVE | FALSE_POSITIVE | WRONG_CATEGORY | UNCERTAIN",
+  "corrected_category": "F | B | I | A | E | G | H | J | null",
+  "reason": "<one sentence>"
+}
