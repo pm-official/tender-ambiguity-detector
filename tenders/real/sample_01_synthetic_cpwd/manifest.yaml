@@ -1,0 +1,40 @@
+package_id: sample_01_synthetic_cpwd
+short_name: sample_01_synthetic_cpwd
+source_portal: SYNTHETIC
+source_url: null
+title: Construction of Overhead Storage Reservoir (synthetic demo)
+value_crore: 4.5
+opened_on: '2026-03-01'
+synthetic: true
+note: Prepared for TAD demo. Not real CPWD content. Do not use for empirical results.
+documents:
+- filename: NIT_OHSR_2026.pdf
+  doc_role: NIT
+  pages: 1
+  page_range: null
+  analyse: true
+- filename: GCC_Excerpt.pdf
+  doc_role: GCC
+  pages: 1
+  page_range: null
+  analyse: true
+- filename: Additional_Conditions.pdf
+  doc_role: Additional Conditions
+  pages: 1
+  page_range: null
+  analyse: true
+- filename: Technical_Specifications.pdf
+  doc_role: Technical Specifications
+  pages: 1
+  page_range: null
+  analyse: true
+- filename: BOQ_Schedule_A.pdf
+  doc_role: BOQ
+  pages: 1
+  page_range: null
+  analyse: true
+- filename: Addendum_01.pdf
+  doc_role: Addendum
+  pages: 1
+  page_range: null
+  analyse: true

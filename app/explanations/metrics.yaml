@@ -68,6 +68,13 @@ resolved_by_context_rate:
   how: "resolved_by_context / (confirmed at Stage 1). The UI breaks it out per category."
   benchmark: "25-45% typical for well-prepared packages."
   example: "50 flags at Stage 1; 17 resolved by context → 34% rate."
+retrieval_hit_at_3:
+  title: "hit@3 — standards retrieval quality"
+  what: "Fraction of hand-crafted questions (gold/standards_qa.jsonl) for which the top-3 retrieved standards chunks contain the expected clause."
+  why: "A rewrite can only be grounded if the retriever can find the right IS-code / CPWD clause. hit@3 is the direct upstream quality signal for Stage 3."
+  how: "For each of the 32 gold questions, run query_standards with top_k=3. The question is a hit if any retrieved chunk contains the expected source code (e.g. 'IS 456:2000'). Rate = hits / total."
+  benchmark: "Operational gate: >= 0.70 on our 32-question gold set. <0.60 means the corpus is under-populated or the embedding model is mismatched to the domain."
+  example: "32 questions, 25 hits at top-3 => hit@3 = 0.78."
 retrieval_score:
   title: "Retrieval similarity score"
   what: "Cosine similarity between the query embedding and the retrieved chunk embedding."

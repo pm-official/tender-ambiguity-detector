@@ -1,0 +1,318 @@
+entries:
+- code: IS 456:2000
+  title: "Plain and Reinforced Concrete \u2014 Code of Practice"
+  year: 2000
+  source_url: https://law.resource.org/pub/in/bis/S03/is.456.2000.pdf
+  archive_fallback: https://archive.org/download/gov.in.is.456.2000/gov.in.is.456.2000.pdf
+  license_note: BIS copyright; accessed via public.resource.org for research.
+  priority: 1
+  status: OK
+  local_path: is_codes/is.456.2000.pdf
+  topic: concrete
+  sha256_expected: 13d8a479c84f76d7c08b5df550b6bcfb87131785e306f42bc2faae1d91537b6b
+  bytes: 7445902
+  pages: 114
+- code: IS 383:1970
+  title: Coarse and Fine Aggregates for Concrete
+  year: 1970
+  source_url: https://law.resource.org/pub/in/bis/S03/is.383.1970.pdf
+  archive_fallback: https://archive.org/download/gov.in.is.383.1970/gov.in.is.383.1970.pdf
+  license_note: BIS copyright; accessed via public.resource.org for research.
+  priority: 1
+  status: OK
+  local_path: is_codes/is.383.1970.pdf
+  topic: aggregates
+  sha256_expected: 16b32158ffaffa9379d17ec24619830a40fa6c7cb3a0609686e43fe20b8e7083
+  bytes: 1928768
+  pages: 24
+- code: IS 800:2007
+  title: "General Construction in Steel \u2014 Code of Practice"
+  year: 2007
+  source_url: https://law.resource.org/pub/in/bis/S03/is.800.2007.pdf
+  archive_fallback: https://archive.org/download/gov.in.is.800.2007/gov.in.is.800.2007.pdf
+  license_note: BIS copyright; accessed via public.resource.org for research.
+  priority: 1
+  status: OK
+  local_path: is_codes/is.800.2007.pdf
+  topic: steel
+  sha256_expected: dbafc6ae4479e8e98d96e7f2c7a0e404c4458374b8bab288f43c054cae0aef47
+  bytes: 11379693
+  pages: 158
+- code: IS 875 Pt 1:1987
+  title: "Design Loads (other than earthquake) \u2014 Dead Loads"
+  year: 1987
+  source_url: https://law.resource.org/pub/in/bis/S03/is.875.1.1987.pdf
+  license_note: BIS copyright; accessed via public.resource.org for research.
+  priority: 1
+  status: OK
+  local_path: is_codes/is.875.1.1987.pdf
+  topic: loads
+  sha256_expected: 1297421334441879000740191b8147ce69d87dbed7b5a5dc9c209518754eb533
+  bytes: 1867195
+  pages: 43
+- code: IS 875 Pt 2:1987
+  title: "Design Loads \u2014 Imposed Loads"
+  year: 1987
+  source_url: https://law.resource.org/pub/in/bis/S03/is.875.2.1987.pdf
+  license_note: BIS copyright; accessed via public.resource.org for research.
+  priority: 1
+  status: OK
+  local_path: is_codes/is.875.2.1987.pdf
+  topic: loads
+  sha256_expected: d63b77eec05b19ce5089d7a0a084ebadae25c2593967f1680a08f4b7df48add8
+  bytes: 1103910
+  pages: 23
+- code: IS 875 Pt 3:1987
+  title: "Design Loads \u2014 Wind Loads"
+  year: 1987
+  source_url: https://law.resource.org/pub/in/bis/S03/is.875.3.1987.pdf
+  license_note: BIS copyright; accessed via public.resource.org for research.
+  priority: 1
+  status: OK
+  local_path: is_codes/is.875.3.1987.pdf
+  topic: loads
+  sha256_expected: 558cac365dd352fc6380b6814103478f45aacceef8515ba3d601c84570662c18
+  bytes: 4836317
+  pages: 67
+- code: IS 875 Pt 4:1987
+  title: "Design Loads \u2014 Snow Loads"
+  year: 1987
+  source_url: https://law.resource.org/pub/in/bis/S03/is.875.4.1987.pdf
+  license_note: BIS copyright; accessed via public.resource.org for research.
+  priority: 1
+  status: OK
+  local_path: is_codes/is.875.4.1987.pdf
+  topic: loads
+  sha256_expected: 95a7672607cc10c87926861d6b3bfcb39d3c579172df5db52b818f9258e441c2
+  bytes: 984476
+  pages: 13
+- code: IS 875 Pt 5:1987
+  title: "Design Loads \u2014 Special Loads and Load Combinations"
+  year: 1987
+  source_url: https://law.resource.org/pub/in/bis/S03/is.875.5.1987.pdf
+  license_note: BIS copyright; accessed via public.resource.org for research.
+  priority: 1
+  status: OK
+  local_path: is_codes/is.875.5.1987.pdf
+  topic: loads
+  sha256_expected: ba86f7dfe54ed9ff7dd6f74f0148259a0c4dcc41737b338699cef5367e67e783
+  bytes: 1657423
+  pages: 24
+- code: IS 1786:2008
+  title: High Strength Deformed Steel Bars and Wires for Concrete Reinforcement
+  year: 2008
+  source_url: https://law.resource.org/pub/in/bis/S03/is.1786.2008.pdf
+  archive_fallback: https://archive.org/download/gov.in.is.1786.2008/gov.in.is.1786.2008.pdf
+  license_note: BIS copyright; accessed via public.resource.org for research.
+  priority: 1
+  status: OK
+  local_path: is_codes/is.1786.2008.pdf
+  topic: reinforcement
+  sha256_expected: c1c863d739f7c3058a6784e3b03dfb76e1d41303b52168901de6fd16d79c7b55
+  bytes: 1940113
+  pages: 22
+- code: IS 13920:2016
+  title: Ductile Design and Detailing of Reinforced Concrete Structures for Seismic
+    Forces
+  year: 2016
+  source_url: https://law.resource.org/pub/in/bis/S03/is.13920.2016.pdf
+  archive_fallback: https://archive.org/download/gov.in.is.13920.2016/gov.in.is.13920.2016.pdf
+  license_note: BIS copyright; accessed via public.resource.org for research.
+  priority: 1
+  status: MISSING
+  local_path: is_codes/is.13920.2016.pdf
+  topic: seismic
+- code: IS 1893 Pt 1:2016
+  title: "Criteria for Earthquake Resistant Design \u2014 General Provisions and Buildings"
+  year: 2016
+  source_url: https://law.resource.org/pub/in/bis/S03/is.1893.1.2016.pdf
+  archive_fallback: https://archive.org/download/gov.in.is.1893.1.2016/gov.in.is.1893.1.2016.pdf
+  license_note: BIS copyright; accessed via public.resource.org for research.
+  priority: 1
+  status: MISSING
+  local_path: is_codes/is.1893.1.2016.pdf
+  topic: seismic
+- code: IS 10262:2019
+  title: "Concrete Mix Proportioning \u2014 Guidelines"
+  year: 2019
+  source_url: https://law.resource.org/pub/in/bis/S03/is.10262.2019.pdf
+  archive_fallback: https://archive.org/download/gov.in.is.10262.2019/gov.in.is.10262.2019.pdf
+  license_note: BIS copyright; accessed via public.resource.org for research.
+  priority: 1
+  status: MISSING
+  local_path: is_codes/is.10262.2019.pdf
+  topic: concrete
+- code: IS 269:2015
+  title: "Ordinary Portland Cement \u2014 Specification"
+  year: 2015
+  source_url: https://law.resource.org/pub/in/bis/S03/is.269.2015.pdf
+  archive_fallback: https://archive.org/download/gov.in.is.269.2015/gov.in.is.269.2015.pdf
+  license_note: BIS copyright; accessed via public.resource.org for research.
+  priority: 1
+  status: MISSING
+  local_path: is_codes/is.269.2015.pdf
+  topic: cement
+- code: IS 12269:2013
+  title: "Ordinary Portland Cement, 53 Grade \u2014 Specification"
+  year: 2013
+  source_url: https://law.resource.org/pub/in/bis/S03/is.12269.2013.pdf
+  archive_fallback: https://archive.org/download/gov.in.is.12269.2013/gov.in.is.12269.2013.pdf
+  license_note: BIS copyright; accessed via public.resource.org for research.
+  priority: 1
+  status: OK
+  local_path: is_codes/is.12269.2013.pdf
+  topic: cement
+  sha256_expected: fe90fa59e2d6e368c100bebb940f26f5700e3d74f66b93cc7cf156ca2948ae1e
+  bytes: 150907
+  pages: 14
+- code: IS 516:1959
+  title: Method of Tests for Strength of Concrete
+  year: 1959
+  source_url: https://law.resource.org/pub/in/bis/S03/is.516.1959.pdf
+  archive_fallback: https://archive.org/download/gov.in.is.516.1959/gov.in.is.516.1959.pdf
+  license_note: BIS copyright; accessed via public.resource.org for research.
+  priority: 1
+  status: OK
+  local_path: is_codes/is.516.1959.pdf
+  topic: testing
+  sha256_expected: 715ed49be84bc8c558854320f95782aa4e52750c06125f0218bb4f7281ce41d5
+  bytes: 1852082
+  pages: 30
+- code: IS 1200 Pt 1:1992
+  title: "Method of Measurement of Building and Civil Engineering Works \u2014 Earthwork"
+  year: 1992
+  source_url: https://law.resource.org/pub/in/bis/S03/is.1200.1.1992.pdf
+  archive_fallback: https://archive.org/download/gov.in.is.1200.1.1992/gov.in.is.1200.1.1992.pdf
+  license_note: BIS copyright; accessed via public.resource.org for research.
+  priority: 1
+  status: OK
+  local_path: is_codes/is.1200.1.1992.pdf
+  topic: measurement
+  sha256_expected: b9dd7670a7bc7d086e6b0c260ba9ec09586f5d5ced4b72a9c7fbf7e88872928d
+  bytes: 1364548
+  pages: 10
+- code: IS 2212:1991
+  title: Code of Practice for Brickwork
+  year: 1991
+  source_url: https://law.resource.org/pub/in/bis/S03/is.2212.1991.pdf
+  archive_fallback: https://archive.org/download/gov.in.is.2212.1991/gov.in.is.2212.1991.pdf
+  license_note: BIS copyright; accessed via public.resource.org for research.
+  priority: 1
+  status: OK
+  local_path: is_codes/is.2212.1991.pdf
+  topic: masonry
+  sha256_expected: faf742eebb171b1541be7cbfd208d6759f6736b035a19c32b7e703cfc2218338
+  bytes: 2845027
+  pages: 30
+- code: IS 2386 Pt 1:1963
+  title: "Methods of Test for Aggregates \u2014 Particle Size and Shape"
+  year: 1963
+  source_url: https://law.resource.org/pub/in/bis/S03/is.2386.1.1963.pdf
+  archive_fallback: https://archive.org/download/gov.in.is.2386.1.1963/gov.in.is.2386.1.1963.pdf
+  license_note: BIS copyright; accessed via public.resource.org for research.
+  priority: 1
+  status: OK
+  local_path: is_codes/is.2386.1.1963.pdf
+  topic: aggregates
+  sha256_expected: bf9caa3307c216906f1ba4b8328d08da4c5e3438c643d13fccf9f819286ce52a
+  bytes: 1865943
+  pages: 26
+- code: IS 2386 Pt 3:1963
+  title: "Methods of Test for Aggregates \u2014 Specific Gravity, Density, Voids,\
+    \ Absorption, Bulking"
+  year: 1963
+  source_url: https://law.resource.org/pub/in/bis/S03/is.2386.3.1963.pdf
+  archive_fallback: https://archive.org/download/gov.in.is.2386.3.1963/gov.in.is.2386.3.1963.pdf
+  license_note: BIS copyright; accessed via public.resource.org for research.
+  priority: 1
+  status: OK
+  local_path: is_codes/is.2386.3.1963.pdf
+  topic: aggregates
+  sha256_expected: de6a863b18117a61664fc13944fff166361aed38f80cbb6cbca3a03964126c0c
+  bytes: 1731752
+  pages: 22
+- code: IS 4031 Pt 1:1996
+  title: "Methods of Physical Tests for Hydraulic Cement \u2014 Determination of Fineness"
+  year: 1996
+  source_url: https://law.resource.org/pub/in/bis/S03/is.4031.1.1996.pdf
+  archive_fallback: https://archive.org/download/gov.in.is.4031.1.1996/gov.in.is.4031.1.1996.pdf
+  license_note: BIS copyright; accessed via public.resource.org for research.
+  priority: 1
+  status: OK
+  local_path: is_codes/is.4031.1.1996.pdf
+  topic: cement-testing
+  sha256_expected: 01990a94591310b806c3a3ce7df2d86ba3ae2b96f63d88fa9cd719ce21234c89
+  bytes: 1247267
+  pages: 10
+- code: IS 9103:1999
+  title: "Concrete Admixtures \u2014 Specification"
+  year: 1999
+  source_url: https://law.resource.org/pub/in/bis/S03/is.9103.1999.pdf
+  archive_fallback: https://archive.org/download/gov.in.is.9103.1999/gov.in.is.9103.1999.pdf
+  license_note: BIS copyright; accessed via public.resource.org for research.
+  priority: 1
+  status: OK
+  local_path: is_codes/is.9103.1999.pdf
+  topic: admixtures
+  sha256_expected: 765253d87d3d70c048bd5eae7c995d3701d874c699ede3f5c123c7dd366e6b38
+  bytes: 2142967
+  pages: 22
+- code: IS 3025 Pt 1:1987
+  title: "Methods of Sampling and Test (Physical and Chemical) for Water and Wastewater\
+    \ \u2014 Sampling"
+  year: 1987
+  source_url: https://law.resource.org/pub/in/bis/S03/is.3025.1.1987.pdf
+  archive_fallback: https://archive.org/download/gov.in.is.3025.1.1987/gov.in.is.3025.1.1987.pdf
+  license_note: BIS copyright; accessed via public.resource.org for research.
+  priority: 1
+  status: MISSING
+  local_path: is_codes/is.3025.1.1987.pdf
+  topic: water
+- code: CPWD Specs 2019 Vol 1
+  title: "CPWD Specifications 2019 \u2014 Volume 1"
+  year: 2019
+  source_url: https://cpwd.gov.in/Publication/Specs2019V1.pdf
+  license_note: Government of India / CPWD; accessed via cpwd.gov.in for research.
+  priority: 2
+  status: OK
+  local_path: cpwd/cpwd_specs_2019_vol1.pdf
+  topic: specifications
+  sha256_expected: 91f7343196c52f5eb51b119175c17244864658b6b9b96d52b109f00f5e6ec64a
+  bytes: 30613660
+  pages: 636
+- code: CPWD Specs 2019 Vol 2
+  title: "CPWD Specifications 2019 \u2014 Volume 2"
+  year: 2019
+  source_url: https://cpwd.gov.in/Publication/Specs2019V2.pdf
+  license_note: Government of India / CPWD; accessed via cpwd.gov.in for research.
+  priority: 2
+  status: OK
+  local_path: cpwd/cpwd_specs_2019_vol2.pdf
+  topic: specifications
+  sha256_expected: d8f7c2c5cf3680d1aed07b1f9f079a637debf9dd92555d46cb1013e0d7c6a9a3
+  bytes: 25093818
+  pages: 756
+- code: CPWD GCC 2019 Construction
+  title: CPWD General Conditions of Contract 2019 (Construction)
+  year: 2019
+  source_url: https://www.cpwd.gov.in/Publication/GCC_Construction_2019.pdf
+  license_note: Government of India / CPWD; accessed via cpwd.gov.in for research.
+  priority: 2
+  status: OK
+  local_path: cpwd/cpwd_gcc_2019.pdf
+  topic: gcc
+  sha256_expected: b15e9d2004ab3e61c1cc254337c91eedce83c5020ccba8314bf4589354984d31
+  bytes: 2125073
+  pages: 115
+- code: CPWD Works Manual 2019
+  title: CPWD Works Manual 2019
+  year: 2019
+  source_url: https://www.ndmc.gov.in/departments/Departments/Finance/nodal_cell/CPWD%20Works%20Manual%202019.pdf
+  license_note: Government of India / CPWD; NDMC mirror, accessed for research.
+  priority: 2
+  status: OK
+  local_path: cpwd/cpwd_works_manual_2019.pdf
+  topic: works-manual
+  sha256_expected: 08ca16f5fb4bbac2f469565722a755b494413d38eafbda48c9a8d725ada6498c
+  bytes: 4625569
+  pages: 80

@@ -19,3 +19,6 @@ build/
 .ruff_cache/
 .mypy_cache/
 node_modules/
+standards/raw/**/*.pdf
+tenders/real/**/*.pdf
+tenders/real/**/raw/

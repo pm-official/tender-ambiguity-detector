@@ -1,0 +1,32 @@
+{"id":"q01","question":"What is the minimum grade of concrete for reinforced concrete structures per IS 456?","expected_source":"IS 456:2000","expected_clause":"6.1","topic":"concrete"}
+{"id":"q02","question":"What is the maximum permissible limit for chlorides in water used for concrete mixing?","expected_source":"IS 456:2000","expected_clause":"5.4","topic":"concrete"}
+{"id":"q03","question":"What minimum cement content is required for M25 concrete in severe exposure?","expected_source":"IS 456:2000","expected_clause":"8.2","topic":"concrete"}
+{"id":"q04","question":"What is the nominal maximum size of coarse aggregate recommended for reinforced concrete?","expected_source":"IS 456:2000","expected_clause":"5.3","topic":"concrete"}
+{"id":"q05","question":"What is the permissible tolerance on cover to reinforcement?","expected_source":"IS 456:2000","expected_clause":"26.4","topic":"concrete"}
+{"id":"q06","question":"What is the specified characteristic compressive strength of M25 concrete at 28 days?","expected_source":"IS 456:2000","expected_clause":"6","topic":"concrete"}
+{"id":"q07","question":"What are the grading requirements for fine aggregate in concrete?","expected_source":"IS 383:1970","expected_clause":"4.3","topic":"aggregates"}
+{"id":"q08","question":"What is the maximum permissible deleterious material content in coarse aggregate?","expected_source":"IS 383:1970","expected_clause":"3.2","topic":"aggregates"}
+{"id":"q09","question":"How is flakiness index of aggregate determined?","expected_source":"IS 2386 Pt 1:1963","expected_clause":"5","topic":"aggregates"}
+{"id":"q10","question":"How is specific gravity of aggregate measured in the laboratory?","expected_source":"IS 2386 Pt 3:1963","expected_clause":"3","topic":"aggregates"}
+{"id":"q11","question":"What is the design wind pressure formula for buildings?","expected_source":"IS 875 Pt 3:1987","expected_clause":"5","topic":"loads"}
+{"id":"q12","question":"What is the basic wind speed for a site in wind zone 44 m/s?","expected_source":"IS 875 Pt 3:1987","expected_clause":"5.2","topic":"loads"}
+{"id":"q13","question":"What are the imposed floor loads for residential buildings?","expected_source":"IS 875 Pt 2:1987","expected_clause":"3","topic":"loads"}
+{"id":"q14","question":"What are the dead-load unit weights for commonly used building materials?","expected_source":"IS 875 Pt 1:1987","expected_clause":"3","topic":"loads"}
+{"id":"q15","question":"What is the minimum yield strength of Fe500 reinforcement bar?","expected_source":"IS 1786:2008","expected_clause":"6","topic":"reinforcement"}
+{"id":"q16","question":"What is the permissible mass variation on nominal mass of reinforcement bars?","expected_source":"IS 1786:2008","expected_clause":"8","topic":"reinforcement"}
+{"id":"q17","question":"What are the compressive strength requirements for 53-grade ordinary portland cement?","expected_source":"IS 12269:2013","expected_clause":"6","topic":"cement"}
+{"id":"q18","question":"What is the standard test for compressive strength of concrete cubes?","expected_source":"IS 516:1959","expected_clause":"5","topic":"testing"}
+{"id":"q19","question":"What is the method for determining fineness of hydraulic cement?","expected_source":"IS 4031 Pt 1:1996","expected_clause":"4","topic":"cement-testing"}
+{"id":"q20","question":"What are the classifications of chemical admixtures for concrete?","expected_source":"IS 9103:1999","expected_clause":"4","topic":"admixtures"}
+{"id":"q21","question":"What is the recommended method of measurement for earthwork excavation?","expected_source":"IS 1200 Pt 1:1992","expected_clause":"3","topic":"measurement"}
+{"id":"q22","question":"What are the material requirements for bricks used in brickwork?","expected_source":"IS 2212:1991","expected_clause":"3","topic":"masonry"}
+{"id":"q23","question":"What is the permissible tolerance on thickness of steel plates per IS 800?","expected_source":"IS 800:2007","expected_clause":"2","topic":"steel"}
+{"id":"q24","question":"What is the minimum reinforcement requirement for beams?","expected_source":"IS 456:2000","expected_clause":"26.5","topic":"concrete"}
+{"id":"q25","question":"What are the curing requirements for concrete?","expected_source":"IS 456:2000","expected_clause":"13.5","topic":"concrete"}
+{"id":"q26","question":"What is the minimum clear cover to reinforcement for a mild exposure?","expected_source":"IS 456:2000","expected_clause":"26.4","topic":"concrete"}
+{"id":"q27","question":"What is the workability requirement for reinforced concrete?","expected_source":"IS 456:2000","expected_clause":"7","topic":"concrete"}
+{"id":"q28","question":"What are the permissible stresses for structural steel?","expected_source":"IS 800:2007","expected_clause":"3","topic":"steel"}
+{"id":"q29","question":"What is the slump recommended for reinforced concrete in normal conditions?","expected_source":"IS 456:2000","expected_clause":"7","topic":"concrete"}
+{"id":"q30","question":"What is the method for preparing concrete test cubes?","expected_source":"IS 516:1959","expected_clause":"4","topic":"testing"}
+{"id":"q31","question":"What are the permissible tolerances for dimensions of brickwork?","expected_source":"IS 2212:1991","expected_clause":"5","topic":"masonry"}
+{"id":"q32","question":"What are the required physical properties for OPC 43 grade cement?","expected_source":"IS 269:2015","expected_clause":"6","topic":"cement"}

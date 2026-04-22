@@ -17,11 +17,14 @@ sys.path.insert(0, str(ROOT))
 import pandas as pd  # noqa: E402
 import streamlit as st  # noqa: E402
 
+from app.components.annotation_page import render_annotation_page  # noqa: E402
 from app.components.flag_card import render_flag_card  # noqa: E402
 from app.components.graph_panel import render_graph_panel  # noqa: E402
 from app.components.info_icon import info_popover, info_tooltip  # noqa: E402
 from app.components.method_panel import render_method_panel  # noqa: E402
 from app.components.pipeline_tracker import render_tracker  # noqa: E402
+from app.components.standards_catalog import render_standards_catalog  # noqa: E402
+from app.components.tender_picker import pick_tender_widget, render_demo_banner  # noqa: E402
 from src import config, explain  # noqa: E402
 from src.pipeline import list_runs, load_pipeline_result, run_pipeline  # noqa: E402
 
@@ -240,6 +243,27 @@ def _auto_type_hint(filename: str) -> str:
 
 def _analyse_tab():
     st.markdown("### Analyse a tender package")
+
+    # Pre-staged tender picker (Prompt-5)
+    with st.expander("🗂 Pre-staged demo packages", expanded=True):
+        picked = pick_tender_widget()
+        if picked:
+            render_demo_banner(picked)
+            st.session_state["picked_tender"] = picked
+            # Offer one-click to seed the upload list with the package's PDFs
+            if st.button("Use this package as the input", key="use_picked"):
+                pkg_dir = picked.get("_dir")
+                if pkg_dir is not None:
+                    st.session_state["_pdf_paths"] = [
+                        Path(pkg_dir) / "raw" / d.get("filename", "")
+                        for d in picked.get("documents") or []
+                    ]
+                    st.session_state["_types_hint"] = {
+                        d.get("filename"): d.get("doc_role", "Other")
+                        for d in picked.get("documents") or []
+                    }
+                    st.success(f"Seeded {len(st.session_state['_pdf_paths'])} PDFs from {picked.get('short_name')}")
+
     st.caption(
         "Upload all PDFs belonging to a single tender (GCC, NIT, Specs, BOQ, Drawings, Addenda). "
         "Tag each document and pick which ones to analyse. Every (ℹ) opens a full explanation."
@@ -285,6 +309,9 @@ def _analyse_tab():
         )
     if sample_name and sample_name != "— none —":
         pdf_paths.append(sample_dir / sample_name)
+    # Package picker seed takes precedence when no explicit upload was made.
+    if not pdf_paths and st.session_state.get("_pdf_paths"):
+        pdf_paths = list(st.session_state["_pdf_paths"])
 
     # Document typing + selection table
     doc_types: dict[str, str] = {}
@@ -677,6 +704,25 @@ def _metrics_tab():
         info_popover("metrics.false_resolution_rate")
     st.caption("Populated when you upload an audit CSV of spot-checked RESOLVED_BY_CONTEXT verdicts.")
 
+    # Retrieval eval badge — reads experiments/ops_readiness/retrieval_eval.json
+    eval_path = Path(config.OUTPUT_DIR).parent / "experiments" / "ops_readiness" / "retrieval_eval.json"
+    if eval_path.exists():
+        st.markdown("#### Standards-retrieval quality")
+        try:
+            data = json.loads(eval_path.read_text(encoding="utf-8"))
+            h3 = data.get("hit@3_rate")
+            c1, c2, c3 = st.columns([2, 2, 2])
+            c1.metric(
+                "hit@3",
+                f"{h3:.2f}" if isinstance(h3, (int, float)) else "—",
+                help=info_tooltip("metrics.retrieval_hit_at_3"),
+            )
+            c2.metric("hit@1", f"{data.get('hit@1_rate', 0):.2f}")
+            c3.metric("MRR", f"{data.get('mrr', 0):.2f}")
+            info_popover("metrics.retrieval_hit_at_3", label="ℹ what does hit@3 mean?")
+        except Exception as e:
+            st.caption(f"(retrieval_eval.json unreadable: {e})")
+
 
 def _graph_tab():
     data = st.session_state.get("current_run_data")
@@ -771,7 +817,17 @@ def main():
     _header()
     _sidebar()
     tabs = st.tabs(
-        ["Analyse", "Annotate", "Metrics", "Graph Explorer", "Pipeline", "Experiments", "About this method"]
+        [
+            "Analyse",
+            "Annotate",
+            "Metrics",
+            "Graph Explorer",
+            "Pipeline",
+            "Experiments",
+            "Standards catalog",
+            "Annotation (Phase 5)",
+            "About this method",
+        ]
     )
     with tabs[0]:
         _analyse_tab()
@@ -786,6 +842,10 @@ def main():
     with tabs[5]:
         _experiments_tab()
     with tabs[6]:
+        render_standards_catalog()
+    with tabs[7]:
+        render_annotation_page()
+    with tabs[8]:
         _about_tab()
 
 
